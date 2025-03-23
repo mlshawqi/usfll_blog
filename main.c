@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<unistd.h> 
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -11,6 +12,20 @@ void    echo_cm(char *str)
         printf("%s", str + 8);
 }
 
+void    cd_cm(char *path)
+{
+    char s[100];
+    printf("%s\n", getcwd(s, 100));
+    if(chdir(path) == -1)
+        printf("cd fail\n");
+    printf("%s\n", getcwd(s, 100));
+}
+
+void    pwd_cm()
+{
+    char s[100];
+    printf("%s\n", getcwd(s, 100));
+}
 
 int main() {
     char *input;
@@ -33,8 +48,10 @@ int main() {
             free(input);
             break;
         }
-        // Here you can process the input as needed
-        echo_cm(input);
+
+        // echo_cm(input);
+        // cd_cm("..");
+        pwd_cm();
 
         // Check for exit command
 
