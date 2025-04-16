@@ -8,65 +8,53 @@
 
 // cc main.c -lreadline
 
-void    echo_cmd(char *str)
-{
-        printf("%s", str + 8);
+// void    echo_cmd(char *str)
+// {
+//         printf("%s", str + 8);
+// }
+
+// void    cd_cmd(char *path)
+// {
+//     char s[100];
+//     printf("%s\n", getcwd(s, 100));
+//     if(chdir(path) == -1)
+//         printf("cd fail\n");
+//     printf("%s\n", getcwd(s, 100));
+// } 
+
+// void    pwd_cmd()
+// {
+//     char s[100];
+//     printf("%s\n", getcwd(s, 100));
+// }
+
+void handle_sigint(int sig) {
+    rl_redisplay();           // Refresh the display
+    printf("\nMinishell~$ ");   // Print the prompt after Ctrl+C
 }
 
-void    cd_cmd(char *path)
-{
-    char s[100];
-    printf("%s\n", getcwd(s, 100));
-    if(chdir(path) == -1)
-        printf("cd fail\n");
-    printf("%s\n", getcwd(s, 100));
-} 
-
-void    pwd_cmd()
-{
-    char s[100];
-    printf("%s\n", getcwd(s, 100));
-}
-
-void    handle_sigint(int sig)
-{
-    // printf("here ctrl c\n");
-    // add_history("");
-    // return;
-}
-
-int main() {
+int main(int argc, char **argv, char **env) {
     char *input;
 
+    signal(SIGINT, handle_sigint);
     while (1) {
-        signal(SIGINT, handle_sigint);
         input = readline("Minishell~$ ");
-
-        // If input is NULL, we've encountered an EOF (Ctrl+D)
-        if (input == NULL) {
-            printf("\nExiting shell.\n");
+        if (input == NULL || (strcmp(input, "exit") == 0))
+        {
+            printf("exit\n");
+            free(input);
             break;
         }
-
-        // If the input is not empty, add it to history
         if (*input) {
             add_history(input);
         }
 
-        if (strcmp(input, "exit") == 0) {
-            free(input);
-            break;
-        }
-
         // echo_cm(input);
         // cd_cm("..");
-        pwd_cmd();
+        printf("input = %s\n", input);
 
-        // Check for exit command
-
-        // Free allocated memory for the input
         free(input);
     }
-
+    rl_clear_history();
     return 0;
 }
