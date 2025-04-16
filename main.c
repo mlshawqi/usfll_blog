@@ -2,35 +2,44 @@
 #include <stdlib.h>
 #include <string.h>
 #include<unistd.h> 
+#include <signal.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
 // cc main.c -lreadline
 
-void    echo_cm(char *str)
+void    echo_cmd(char *str)
 {
         printf("%s", str + 8);
 }
 
-void    cd_cm(char *path)
+void    cd_cmd(char *path)
 {
     char s[100];
     printf("%s\n", getcwd(s, 100));
     if(chdir(path) == -1)
         printf("cd fail\n");
     printf("%s\n", getcwd(s, 100));
-}
+} 
 
-void    pwd_cm()
+void    pwd_cmd()
 {
     char s[100];
     printf("%s\n", getcwd(s, 100));
+}
+
+void    handle_sigint(int sig)
+{
+    // printf("here ctrl c\n");
+    // add_history("");
+    // return;
 }
 
 int main() {
     char *input;
 
     while (1) {
+        signal(SIGINT, handle_sigint);
         input = readline("Minishell~$ ");
 
         // If input is NULL, we've encountered an EOF (Ctrl+D)
@@ -51,7 +60,7 @@ int main() {
 
         // echo_cm(input);
         // cd_cm("..");
-        pwd_cm();
+        pwd_cmd();
 
         // Check for exit command
 
