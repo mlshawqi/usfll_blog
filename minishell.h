@@ -17,6 +17,7 @@
 
 typedef struct s_env{
         char    *line;
+        struct s_env    *previous;
         struct s_env   *next;
 }               t_env;
 
@@ -26,5 +27,7 @@ void    cd_cmd(char *path);
 void	link_node(t_env **head, char *line);
 void    env_cmd(t_env *lst);
 
+int	ft_lstsize(t_env *lst);
+t_env	*ft_lstnew(char *content);
 
 #endif

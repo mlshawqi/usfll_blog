@@ -1,0 +1,27 @@
+# SRC = libft/ft_lstnew_bonus.c libft/ft_lstsize_bonus.c libft/ft_lstadd_front_bonus.c \
+# 	   libft/ft_lstadd_back_bonus.c libft/ft_lstlast_bonus.c libft/ft_lstclear_bonus.c \
+# 	   libft/ft_lstiter_bonus.c libft/ft_lstdelone_bonus.c libft/ft_lstmap_bonus.c \
+	  
+SRC =	main.c linked_list.c built_in.c libft/ft_strcmp.c libft/ft_strlcpy.c libft/ft_strlen.c
+
+CC = cc
+CFLAGS = -Wall -Wextra -Werror
+NAME = minishelll
+
+SRC_O = $(SRC:.c=.o)
+
+all: $(NAME)
+
+$(NAME): $(SRC_O)
+	$(CC) $(CFLAGS) $(SRC_O) -o $(NAME)
+
+clean:
+	rm -f $(SRC_O)
+
+fclean: clean
+	rm -f $(NAME)
+
+re: fclean all
+
+.PHONY : all clean fclean re
+.SECONDARY : $(SRC_O)
