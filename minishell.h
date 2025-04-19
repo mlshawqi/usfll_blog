@@ -24,10 +24,12 @@ typedef struct s_env{
 // built-in_functions
 void    echo_cmd(char *str);
 void    cd_cmd(char *path);
-void	link_node(t_env **head, char *line);
+void	link_node(t_env **head, char *line, char hint);
 void    env_cmd(t_env *lst);
 
 int	ft_lstsize(t_env *lst);
-t_env	*ft_lstnew(char *content);
+t_env	*ft_lstnew(char *content, char hint);
+void	put_quotes_sign(char *line, char *env);
+char	*manage_line(char *line);
 
 #endif

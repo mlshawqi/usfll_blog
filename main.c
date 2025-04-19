@@ -3,14 +3,14 @@
 // cc main.c -lreadline
 
 
-void    copy_env(char **env, t_env **list)
+void    copy_env(char **env, t_env **list, char hint)
 {
     int i;
 
     i = 0;
     while(env[i])
     {
-        link_node(list, env[i]);
+        link_node(list, env[i], hint);
         i++;
     }
 }
@@ -48,15 +48,11 @@ void    sort_env(t_env *env)
     while(len)
     {
         lst = env;
-
-        // printf("%s  %s\n", lst->line, lst->next->line);
         while(lst->next != NULL)
         {
             if(lst->next && (ft_strcmp(lst->line, lst->next->line) > 0))
             {
-                
                 tmp = lst->next;
-
                 lst->next = tmp->next;
                 if (tmp->next)
                     tmp->next->previous = lst;
@@ -68,14 +64,6 @@ void    sort_env(t_env *env)
                     env = tmp;
                 tmp->next = lst;
                 lst->previous = tmp;
-
-                // lst->next = lst->next->next;
-                // lst->next->next = lst;
-                // lst->next->previous = lst->previous;
-                // lst->previous = lst->next;
-
-                // printf("%s\n", lst->line);
-                // break;
             }
             else
                 lst = lst->next;
@@ -90,10 +78,15 @@ int main(int argc, char **argv, char **env)
         (void)argc;
         (void)argv;
         t_env   *envrmnt;
+        t_env   *envcpy;
 
         envrmnt = NULL;
-        copy_env(env, &envrmnt);
-        sort_env(envrmnt);
+        envcpy = NULL;
+        copy_env(env, &envrmnt, 'r');
+        copy_env(env, &envcpy, 'c');
+        sort_env(envcpy);
+        // printf("-----------------------------------------------\n");
+        // env_cmd(envcpy);
         // env_cmd(envrmnt);
 
         // signal(SIGINT, handle_sigint);

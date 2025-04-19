@@ -2,7 +2,8 @@
 # 	   libft/ft_lstadd_back_bonus.c libft/ft_lstlast_bonus.c libft/ft_lstclear_bonus.c \
 # 	   libft/ft_lstiter_bonus.c libft/ft_lstdelone_bonus.c libft/ft_lstmap_bonus.c \
 	  
-SRC =	main.c linked_list.c built_in.c libft/ft_strcmp.c libft/ft_strlcpy.c libft/ft_strlen.c
+SRC =	main.c linked_list.c built_in.c libft/ft_strcmp.c libft/ft_strlcpy.c \
+	libft/ft_strlen.c libft/ft_strchr.c libft/ft_strjoin.c libft/ft_strdup.c
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
