@@ -51,7 +51,10 @@ char	*manage_line(char *line)
 	int	len;
 	char	*quotes_line;
 
-	len = strlen(line) + 3;
+	if(ft_strchr(line, '='))
+		len = ft_strlen(line) + 3;
+	else
+		len = ft_strlen(line) + 1;
 	quotes_line = malloc(sizeof(char) * len);
         if(!quotes_line)
                 return (NULL);
@@ -80,23 +83,10 @@ void	put_quotes_sign(char *line, char *env)
 		i++;
 		j++;
 	}
-	env[j] = '"';
-	env[j + 1] = '\0';
+	if(sign > 0)
+	{
+		env[j] = '"';
+		j++;
+	}
+	env[j] = '\0';
 }
-
-// t_env	*ft_lstlast(t_env *lst)
-// {
-// 	if (lst == NULL)
-// 		return (NULL);
-// 	while (lst->next != NULL)
-// 		lst = lst->next;
-// 	return (lst);
-// }
-
-// void	ft_lstadd_front(t_env **lst, t_env *new)
-// {
-// 	if (!lst || !new)
-// 		return ;
-// 	new->next = *lst;
-// 	*lst = new;
-// }

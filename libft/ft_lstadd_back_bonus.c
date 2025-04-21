@@ -1,8 +1,8 @@
 #include "libft.h"
 
-void	ft_lstadd_back(t_list **lst, t_list *new)
+void	ft_lstadd_back(t_env **lst, t_env *new)
 {
-	t_list	*tp;
+	t_env	*tp;
 
 	if (!lst || !new)
 		return ;
@@ -12,5 +12,6 @@ void	ft_lstadd_back(t_list **lst, t_list *new)
 	{
 		tp = ft_lstlast(*lst);
 		tp->next = new;
+		new->previous = tp;
 	}
 }
