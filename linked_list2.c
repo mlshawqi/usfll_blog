@@ -42,3 +42,25 @@ int	ft_lstsize(t_env *lst)
 	}
 	return (len);
 }
+
+void	ft_lstclear(t_env **lst)
+{
+	t_env	*p;
+
+	if (lst == NULL || *lst == NULL)
+		return ;
+	while (*lst != NULL)
+	{
+		p = (*lst)->next;
+		ft_lstdelone(*lst);
+		*lst = p;
+	}
+	*lst = NULL;
+}
+void	ft_lstdelone(t_env *lst)
+{
+	if (lst == NULL)
+		return ;
+	free(lst->line);
+	free(lst);
+}

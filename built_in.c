@@ -5,21 +5,15 @@ void    pwd_cmd()
         char *pwd;
 
         pwd = getcwd(NULL, 0);
-        printf("pwd: %s\n", pwd);
+        printf("%s\n", pwd);
+        free(pwd);
 }
 
 
 void    echo_cmd(char *str)
 {
-        printf("%s", str);
+    printf("%s", str);
 }
-
-void    cd_cmd(char *path)
-{
-    if(chdir(path) == -1)
-        printf("cd fail\n");
-}
-
 void    env_cmd(t_env *lst)
 {
         while(lst != NULL)
@@ -28,6 +22,28 @@ void    env_cmd(t_env *lst)
             lst = lst->next;
         }
 }
+
+void    cd_cmd(char *path, t_env **env)
+{
+    char    *old;
+
+    old = getcwd(NULL, 0);
+    if(!old)
+        perror(NULL);
+    if(chdir(path) == -1)
+        perror("cd");
+    else
+    {
+        update_pwd(env, old, 'O');
+            free(old);
+        old = getcwd(NULL, 0);
+        if(!old)
+            perror(NULL);
+        update_pwd(env, old, 'P');
+        free(old);
+    } 
+}
+
 
 void    export_cmd(t_env **envrmnt, char *value)
 {
@@ -39,6 +55,7 @@ void    export_cmd(t_env **envrmnt, char *value)
         envcpy = NULL;
         copy_env(NULL, &envcpy, *envrmnt, 'c');
         sort_env(envcpy);
+        ft_lstclear(&envcpy);
     }
     else
     {
@@ -61,7 +78,8 @@ void    unset_cmd(t_env **env, char *args)
     lst = *env;
     while(lst)
     {
-        if(ft_strncmp(lst->line, args, ft_strlen(args)) == 0)
+        if(ft_strncmp(lst->line, args, ft_strlen(args)) == 0
+            && ft_names(lst->line, args) == 0)
         {
             if(!lst->previous)
                 *env = lst->next;
@@ -76,3 +94,10 @@ void    unset_cmd(t_env **env, char *args)
         lst = lst->next;
     }
 }
+
+
+
+// void    exit_cmd()
+// {
+//     exit;
+// }
