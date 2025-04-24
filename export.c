@@ -60,7 +60,7 @@ void    sort_env(t_env *env)
         }
         len--;
     }
-    env_cmd(env);
+    env_cmd(env, NULL);
 }
 
 int names_match(char *v1, char *v2)

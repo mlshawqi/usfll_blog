@@ -41,3 +41,18 @@ void    update_pwd(t_env **env, char *path, char hint)
         lst = lst->next;
     }
 }
+
+int     ft_isoption(char *str)
+{
+    int i;
+
+    i = 1;
+    while(str[i] != '\0')
+    {
+        if(str[0] == '-' && str[i] == 'n')
+            i++;
+        else
+            return (1);
+    }
+    return (0);
+}

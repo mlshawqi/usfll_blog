@@ -32,14 +32,15 @@ typedef struct s_local_var{
 void    handle_sigint(int sig);
 
 // built-in_functions
-void    echo_cmd(char *str);
+int    echo_cmd(char **arg);
 void    cd_cmd(char *path, t_env **env);
-void    pwd_cmd();
+int    pwd_cmd(char **args);
 void	link_node(t_env **head, char *line, char hint);
-void    env_cmd(t_env *lst);
+int    env_cmd(t_env *lst, char **arg);
 void    export_cmd(t_env **envrmnt, char *value);
 void    unset_cmd(t_env **env, char *args);
 void    update_pwd(t_env **env, char *path, char hint);
+int     ft_isoption(char *str);
 
 int	ft_lstsize(t_env *lst);
 t_env	*ft_lstnew(char *content, char hint);
