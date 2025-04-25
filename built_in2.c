@@ -1,45 +1,54 @@
 #include "minishell.h"
 
-
-int     ft_names(char *line, char *arg)
-{
-    int arg_len;
-    int line_len;
-
-    arg_len = ft_strlen(arg);
-    line_len = ft_strlen(line);
-    if(arg_len > line_len)
-        return (1);
-    if((line_len > arg_len && line[arg_len] == '=') || arg_len == line_len)
-        return (0);
-    return (1);
-}
-
-void    update_pwd(t_env **env, char *path, char hint)
+static void    unset_var(t_env **head, char *variable)
 {
     t_env   *lst;
 
-    lst = *env;
+    lst = *head;
     while(lst)
     {
-        if(hint == 'P' && (ft_strlen(lst->line) >= ft_strlen("PWD")) 
-            && (ft_strncmp(lst->line, "PWD", 3) == 0) 
-            && (lst->line[3] == '=' || lst->line[3] == '\0'))
-            {
-                free(lst->line);
-                lst->line = ft_strjoin("PWD=", path);
-                break;
-            }
-        else if(hint == 'O' && (ft_strlen(lst->line) >= ft_strlen("OLDPWD")) 
-            && (ft_strncmp(lst->line, "OLDPWD", 6) == 0) 
-            && (lst->line[6] == '=' || lst->line[6] == '\0'))
-            {
-                free(lst->line);
-                lst->line = ft_strjoin("OLDPWD=", path);
-                break;
-            }
+        if(ft_strcmp(lst->name, variable) == 0)
+        {
+            if(!lst->previous)
+                *head = lst->next;
+            else
+                lst->previous->next = lst->next;
+            if(lst->next)
+                lst->next->previous = lst->previous;
+            free(lst->name);
+            free(lst->value);
+            free(lst);
+            break;
+        }
         lst = lst->next;
     }
+}
+
+int    unset_cmd(t_env **env, t_env **export, char **args)
+{
+        int     j;
+
+        j = 0;
+        while(args[j])
+        {
+            if(args[0][0] == '-')
+            {
+                printf("unset : invalid option\n");
+                return (-1);
+            }
+            if(args[j] && args[j][0] == '-')
+            {
+                j++;
+                continue;
+            }
+            else
+            {
+                unset_var(env, args[j]);
+                unset_var(export, args[j]);
+            }
+            j++;
+        }
+        return (0);
 }
 
 int     ft_isoption(char *str)

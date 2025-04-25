@@ -17,46 +17,53 @@
 
 
 typedef struct s_env{
-        char    *line;
+        char    *name;
+        char    *value;
         struct s_env    *previous;
         struct s_env   *next;
 }               t_env;
 
-typedef struct s_local_var{
+typedef struct s_local{
         char    *name;
         char    *value;
-        struct s_local_var *prev;
-        struct s_local_var *next;
-}               t_local_var;
+        struct s_local *prev;
+        struct s_local *next;
+}               t_local;
 
-void    handle_sigint(int sig);
+enum e_quoting_status {
+	DFLT,
+	SQUOTE,
+	DQUOTE
+};
+
+// void    handle_sigint(int sig);
 
 // built-in_functions
 int    echo_cmd(char **arg);
-void    cd_cmd(char *path, t_env **env);
+int    cd_cmd(char **args, t_env **env);
 int    pwd_cmd(char **args);
-void	link_node(t_env **head, char *line, char hint);
 int    env_cmd(t_env *lst, char **arg);
-void    export_cmd(t_env **envrmnt, char *value);
-void    unset_cmd(t_env **env, char *args);
-void    update_pwd(t_env **env, char *path, char hint);
-int     ft_isoption(char *str);
+int    export_cmd(t_env **envrmnt, t_env **export, char **args);
+int    unset_cmd(t_env **env, t_env **export, char **args);
 
+void    copy_env(char **env, t_env **list);
+void    sort_env(t_env **env);
+int     ft_isoption(char *str);
+void    swap_nodes(t_env *lst, t_env **env);
+
+void	link_node(t_env **head, char *line);
 int	ft_lstsize(t_env *lst);
-t_env	*ft_lstnew(char *content, char hint);
+t_env	*ft_lstnew(char *line);
 void	ft_lstadd_back(t_env **lst, t_env *new);
 t_env	*ft_lstlast(t_env *lst);
 void	ft_lstclear(t_env **lst);
 void	ft_lstdelone(t_env *lst);
-void	put_quotes_sign(char *line, char *env);
-char	*manage_line(char *line);
-int     ft_names(char *line, char *arg);
+// void	put_quotes_sign(char *line, char *env);
+// char	*manage_line(char *line);
+// int     ft_names(char *line, char *arg);
 
 // export
-void    copy_env(char **env, t_env **list, t_env *envr, char hint);
-void    sort_env(t_env *env);
-int     ft_same_variable(t_env *lst, char *value);
-int     names_match(char *v1, char *v2);
-void    swap_nodes(t_env *lst, t_env **env);
+// int     ft_same_variable(t_env *lst, char *value);
+// int     names_match(char *v1, char *v2);
 
 #endif

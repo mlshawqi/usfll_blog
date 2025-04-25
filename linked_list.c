@@ -1,11 +1,23 @@
 #include "minishell.h"
 
-void	link_node(t_env **head, char *line, char hint)
+void    copy_env(char **env, t_env **list)
+{
+    int i;
+
+    i = 0;
+    while(env[i])
+    {
+        link_node(list, env[i]);
+        i++;
+    }
+}
+
+void	link_node(t_env **head, char *line)
 {
 	t_env	*new_node;
 	t_env	*current;
 
-	new_node = ft_lstnew(line, hint);
+	new_node = ft_lstnew(line);
 	if (*head == NULL)
 		*head = new_node;
 	else
@@ -18,75 +30,27 @@ void	link_node(t_env **head, char *line, char hint)
 	}
 }
 
-t_env	*ft_lstnew(char *content, char hint)
+t_env	*ft_lstnew(char *line)
 {
 	t_env	*new_node;
-	int	len;
-	char	*tmp;
+	int	name_len;
+	int	value_len;
 
+	name_len = ft_strchr(line, '=') - line;
+	value_len = ft_strlen(ft_strchr(line, '=') + 1);
 	new_node = malloc(sizeof(t_env));
 	if (!new_node)
 		return (NULL);
-	if(hint == 'c')
-	{
-		tmp = manage_line(content);
-		new_node->line = ft_strjoin("declare -x ", tmp);
-		free(tmp);
-	}
-	else
-	{
-		len = strlen(content) + 1;
-		new_node->line = malloc(sizeof(char) * len);
-		if(!new_node->line)
-			return (NULL);
-		ft_strlcpy(new_node->line, content, len + 1);
-
-	}
+	new_node->name = malloc(sizeof(char) * name_len + 1);
+	if(!new_node->name)
+		return (NULL);
+	new_node->value = malloc(sizeof(char) * value_len + 1);
+	if(!new_node->value)
+		return (NULL);
+	ft_strlcpy(new_node->name, line, name_len + 1);
+	ft_strlcpy(new_node->value, ft_strchr(line, '=') + 1, value_len + 1);
 	new_node->next = NULL;
 	new_node->previous = NULL;
 	return (new_node);
 }
-char	*manage_line(char *line)
-{
-	int	len;
-	char	*quotes_line;
 
-	if(ft_strchr(line, '='))
-		len = ft_strlen(line) + 3;
-	else
-		len = ft_strlen(line) + 1;
-	quotes_line = malloc(sizeof(char) * len);
-        if(!quotes_line)
-                return (NULL);
-	put_quotes_sign(line, quotes_line);
-	return (quotes_line);
-}
-
-void	put_quotes_sign(char *line, char *env)
-{
-	int	i;
-	int	j;
-	int	sign;
-
-	i = 0;
-	j = 0;
-	sign = 0;
-	while(line[i] != '\0')
-	{
-		env[j] = line[i];
-		if(line[i] == '=' && sign == 0)
-		{
-			env[j + 1] = '"';
-			j++;
-			sign++;
-		}
-		i++;
-		j++;
-	}
-	if(sign > 0)
-	{
-		env[j] = '"';
-		j++;
-	}
-	env[j] = '\0';
-}
