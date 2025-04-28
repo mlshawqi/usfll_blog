@@ -4,10 +4,13 @@ int    pwd_cmd(char **args)
 {
         char *pwd;
 
-        if(args && (ft_strlen(args[0]) > 1) && args[0][0] == '-')
+        if(args && args[0])
         {
-            printf("pwd: [%s]: invalid option\n", args[0]);
-            return (-1);
+            if(args && (ft_strlen(args[0]) > 1) && args[0][0] == '-')
+            {
+                printf("pwd: [%s]: invalid option\n", args[0]);
+                return (-1);
+            }
         }
         pwd = getcwd(NULL, 0);
         if(!pwd)
@@ -20,6 +23,19 @@ int    pwd_cmd(char **args)
         return (0);
 }
 
+static void     print_echo(char **arg)
+{
+    int j;
+
+    j = 0;
+    while(arg[j])
+    {
+        printf("%s", arg[j]);
+        j++;
+        if(arg[j])
+            printf(" ");
+    }   
+}
 int    echo_cmd(char **arg)
 {
     int hint;
@@ -27,30 +43,28 @@ int    echo_cmd(char **arg)
 
     j = 0;
     hint = 0;
-    while(arg[j])
+    if(arg && arg[0])
     {
-        if(ft_strlen(arg[j]) > 1 && ft_isoption(arg[j]) == 0)
+        while(arg[j])
         {
-            j++;
-            hint++;
+            if(ft_strlen(arg[j]) > 1 && ft_isoption(arg[j]) == 0)
+            {
+                j++;
+                hint++;
+            }
+            else
+                break;
         }
-        else
-            break;
-    }
-    while(arg[j])
-    {
-        printf("%s", arg[j]);
-        j++;
-        if(arg[j])
-            printf(" ");
+        print_echo(arg + j);
     }
     if(hint == 0)
         printf("\n");
     return (0);
 }
+
 int    env_cmd(t_env *lst, char **arg)
 {
-        if(*arg)
+        if(arg && arg[0])
         {
             printf("env: usage: env [no options or arguments allowed]\n");
             return (-1);
@@ -63,8 +77,39 @@ int    env_cmd(t_env *lst, char **arg)
         return (0);
 }
 
+static int  str_isdigit(char *str)
+{
+        int i;
 
-// void    exit_cmd()
-// {
-//     exit;
-// }
+        i = 0;
+        while(str[i])
+        {
+            if(ft_isdigit(str[i]) == 1 || (str[i] == '\t' || str[i] == '\n'
+                || str[i] == 32 || str[i] == '-' || str[i] == '+'))
+                i++;
+            else
+                return (1);
+        }
+        return (0);
+}
+
+int    exit_cmd(char **arg)
+{
+        if (!arg || !arg[0])
+        {
+            // g_last_exit_code = 0;
+            exit (0);
+        }
+        if (arg[1])
+        {
+            printf("exit\nminishell: exit: too many arguments\n");
+            return (1);
+        }
+        if (str_isdigit(arg[0]) == 1)
+        {
+            printf("exit\nminishell: exit: %s: numeric argument required\n", arg[0]);
+            // g_last_exit_code = 2;
+            exit (2);
+        }
+        exit (ft_atoi(arg[0]));
+}

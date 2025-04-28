@@ -4,7 +4,8 @@
 	  
 SRC =	main.c linked_list.c built_in.c libft/ft_strcmp.c libft/ft_strlcpy.c \
 	libft/ft_strlen.c libft/ft_strchr.c libft/ft_strjoin.c libft/ft_strdup.c \
-	linked_list2.c libft/ft_strncmp.c export.c built_in2.c cd_cmd.c export2.c
+	linked_list2.c libft/ft_strncmp.c export.c built_in2.c cd_cmd.c export2.c \
+	libft/ft_isdigit.c libft/ft_atoi.c
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror 

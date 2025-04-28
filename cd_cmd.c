@@ -66,7 +66,7 @@ int    cd_cmd(char **args, t_env **env)
     char    *old;
 
     old = getcwd(NULL, 0);
-    if(!(*args) || (ft_strcmp(args[0], "~") == 0 && !args[1]))
+    if((!args || !args[0]) || (ft_strcmp(args[0], "~") == 0 && !args[1]))
     {
         if(change_home(*env) == -1)
         {

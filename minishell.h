@@ -15,6 +15,7 @@
 #include <readline/history.h>
 #include "libft/libft.h"
 
+extern int g_last_exit_code;
 
 typedef struct s_env{
         char    *name;
@@ -45,6 +46,7 @@ int    pwd_cmd(char **args);
 int    env_cmd(t_env *lst, char **arg);
 int    export_cmd(t_env **envrmnt, t_env **export, char **args);
 int    unset_cmd(t_env **env, t_env **export, char **args);
+int    exit_cmd(char **arg);
 
 void    copy_env(char **env, t_env **list);
 void    sort_env(t_env **env);

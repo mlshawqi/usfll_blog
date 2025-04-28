@@ -29,24 +29,22 @@ int    unset_cmd(t_env **env, t_env **export, char **args)
         int     j;
 
         j = 0;
-        while(args[j])
+        if(args && args[0])
         {
-            if(args[0][0] == '-')
+            while(args[j])
             {
-                printf("unset : invalid option\n");
-                return (-1);
-            }
-            if(args[j] && args[j][0] == '-')
-            {
+                if(args[0][0] == '-')
+                {
+                    printf("unset : invalid option\n");
+                    return (-1);
+                }
+                else
+                {
+                    unset_var(env, args[j]);
+                    unset_var(export, args[j]);
+                }
                 j++;
-                continue;
             }
-            else
-            {
-                unset_var(env, args[j]);
-                unset_var(export, args[j]);
-            }
-            j++;
         }
         return (0);
 }

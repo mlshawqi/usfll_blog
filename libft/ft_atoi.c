@@ -1,9 +1,9 @@
 #include "libft.h"
 
-int	ft_atoi(char *str, int *error)
+long	ft_atoi(const char *str)
 {
 	long	result;
-	int		sign;
+	long		sign;
 	int		i;
 
 	result = 0;
@@ -19,26 +19,9 @@ int	ft_atoi(char *str, int *error)
 	}
 	while (str[i] >= '0' && str[i] <= '9')
 	{
-		if (!check_overflow(result, str[i] - '0', sign, error))
-			return (0);
 		result *= 10;
 		result += str[i] - 48;
 		i++;
 	}
 	return (result * sign);
-}
-
-int	check_overflow(long result, int digit, int sign, int *error)
-{
-	if (sign == 1 && result > (INT_MAX - digit) / 10)
-	{
-		*error = 1;
-		return (0);
-	}
-	if ((sign == -1) && (-result < (INT_MIN + digit) / 10))
-	{
-		*error = 1;
-		return (0);
-	}
-	return (1);
 }

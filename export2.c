@@ -69,7 +69,7 @@ int    export_cmd(t_env **envrmnt, t_env **export, char **args)
     int     j;
 
     j = 0;
-    if(!(*args))
+    if(!args || !args[0])
         sort_env(export);
     else
     {

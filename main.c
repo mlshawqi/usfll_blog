@@ -14,15 +14,18 @@ int main(int argc, char **argv, char **env)
         // char *input;
         (void)argc;
         (void)argv;
-        t_env   *envrmnt;
-        t_env   *envcpy;
+        (void)env;
+        // t_env   *envrmnt;
+        // t_env   *export;
 
-        envrmnt = NULL;
-        envcpy= NULL;
-        copy_env(env, &envrmnt);
-        copy_env(env, &envcpy);
-        ft_lstclear(&envrmnt);
-        ft_lstclear(&envcpy);
+        // envrmnt = NULL;
+        // export= NULL;
+        // copy_env(env, &envrmnt);
+        // copy_env(env, &export);
+        // ft_lstclear(&envrmnt);
+        // ft_lstclear(&export);
+        char *arg[] = {"-2345039303", NULL};
+        exit_cmd(arg);
         // signal(SIGINT, handle_sigint);
         // while (1)
         // {
