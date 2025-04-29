@@ -77,7 +77,7 @@ int    env_cmd(t_env *lst, char **arg)
         return (0);
 }
 
-static int  str_isdigit(char *str)
+static int  invalid_numeric_input(char *str)
 {
         int i;
 
@@ -127,24 +127,23 @@ static int      is_longlong(char *str)
 
 int    exit_cmd(char **arg)
 {
+        printf("exit\n");
         if (!arg || !arg[0])
         {
             g_last_exit_code = 0;
-            printf("exit\n");
             exit (0);
         }
         if (arg[1])
         {
-            printf("exit\nminishell: exit: too many arguments\n");
+            printf("minishell: exit: too many arguments\n");
             return (1);
         }
-        if ((str_isdigit(arg[0]) == 1) || (is_longlong(arg[0]) == -1))
+        if ((invalid_numeric_input(arg[0]) == 1) || (is_longlong(arg[0]) == -1))
         {
-            printf("exit\nminishell: exit: %s: numeric argument required\n", arg[0]);
+            printf("minishell: exit: %s: numeric argument required\n", arg[0]);
             g_last_exit_code = 2;
             exit (2);
         }
         g_last_exit_code = ft_atoi(arg[0]);
-        printf("exit\n");
         exit (g_last_exit_code);
 }

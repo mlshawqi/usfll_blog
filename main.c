@@ -25,7 +25,7 @@ int main(int argc, char **argv, char **env)
         // copy_env(env, &export);
         // ft_lstclear(&envrmnt);
         // ft_lstclear(&export);
-        char *arg[] = {"o922", NULL};
+        char *arg[] = {"256", NULL};
         exit_cmd(arg);
         // signal(SIGINT, handle_sigint);
         // while (1)

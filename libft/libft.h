@@ -5,6 +5,10 @@
 # include <stddef.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <stdio.h>
+
+# define MAX_LONG 9223372036854775807ULL
+# define MIN_LONG 9223372036854775808ULL
 
 // typedef struct s_list
 // {
@@ -12,11 +16,6 @@
 // 	struct s_list	*next;
 // }					t_list;
 
-// typedef struct s_env{
-//         char    *line;
-//         struct s_env    *previous;
-//         struct s_env   *next;
-// }               t_env;
 
 int					ft_isalpha(int c);
 int					ft_isdigit(int c);
