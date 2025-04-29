@@ -82,14 +82,46 @@ static int  str_isdigit(char *str)
         int i;
 
         i = 0;
+        while (str[i] == '\t' || str[i] == '\n' || str[i] == ' ')
+		    i++;
+	    if ((str[i] == '-' || str[i] == '+') && (ft_isdigit(str[i + 1]) == 1)) 
+		    i++;
         while(str[i])
         {
-            if(ft_isdigit(str[i]) == 1 || (str[i] == '\t' || str[i] == '\n'
-                || str[i] == 32 || str[i] == '-' || str[i] == '+'))
+            if(ft_isdigit(str[i]) == 1)
                 i++;
             else
-                return (1);
+                break;
         }
+        if(str[i] == '\0' || str[i] == '\t' || str[i] == '\n' || str[i] == ' ')
+        {
+            while (str[i] == '\t' || str[i] == '\n' || str[i] == ' ')
+                i++;
+        }
+        if(str[i] != '\0')
+            return (1);
+        return (0);
+}
+
+static int      is_longlong(char *str)
+{
+        int i;
+        int len;
+        int sign;
+
+        i = 0;
+        len = 0;
+        sign = 0;
+        while(str[i])
+        {
+            if(str[i] == '-' || str[i] == '+')
+                sign++;
+            if(ft_isdigit(str[i]) == 1)
+                len++;
+            i++;
+        }
+        if(len > 19)
+            return (-1);
         return (0);
 }
 
@@ -97,7 +129,8 @@ int    exit_cmd(char **arg)
 {
         if (!arg || !arg[0])
         {
-            // g_last_exit_code = 0;
+            g_last_exit_code = 0;
+            printf("exit\n");
             exit (0);
         }
         if (arg[1])
@@ -105,11 +138,13 @@ int    exit_cmd(char **arg)
             printf("exit\nminishell: exit: too many arguments\n");
             return (1);
         }
-        if (str_isdigit(arg[0]) == 1)
+        if ((str_isdigit(arg[0]) == 1) || (is_longlong(arg[0]) == -1))
         {
             printf("exit\nminishell: exit: %s: numeric argument required\n", arg[0]);
-            // g_last_exit_code = 2;
+            g_last_exit_code = 2;
             exit (2);
         }
-        exit (ft_atoi(arg[0]));
+        g_last_exit_code = ft_atoi(arg[0]);
+        printf("exit\n");
+        exit (g_last_exit_code);
 }

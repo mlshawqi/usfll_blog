@@ -1,6 +1,7 @@
 #include "minishell.h"
 
 // cc main.c -lreadline
+int g_last_exit_code = 0;
 
 void    handle_sigint(int sig)
 {
@@ -24,7 +25,7 @@ int main(int argc, char **argv, char **env)
         // copy_env(env, &export);
         // ft_lstclear(&envrmnt);
         // ft_lstclear(&export);
-        char *arg[] = {"-2345039303", NULL};
+        char *arg[] = {"o922", NULL};
         exit_cmd(arg);
         // signal(SIGINT, handle_sigint);
         // while (1)

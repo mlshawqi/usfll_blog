@@ -1,9 +1,9 @@
 #include "libft.h"
 
-long	ft_atoi(const char *str)
+long long	ft_atoi(const char *str)
 {
-	long	result;
-	long		sign;
+	long long	result;
+	long long		sign;
 	int		i;
 
 	result = 0;
