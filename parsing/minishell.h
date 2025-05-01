@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <sys/wait.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <signal.h>
@@ -23,6 +24,9 @@
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
 # endif
+
+# define MAX_LONG 9223372036854775807ULL
+# define MIN_LONG 9223372036854775808ULL
 
 extern int g_last_exit_code;
 
@@ -60,12 +64,6 @@ typedef struct s_cmd
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }	t_cmd;
-typedef struct s_local{
-	char    *name;
-	char    *value;
-	struct s_local *prev;
-	struct s_local *next;
-}               t_local;
 
 typedef struct s_env {
     char *name;            // Nom de la variable (ex: "PATH")
@@ -79,7 +77,7 @@ typedef struct s_data
 	bool		interactive;
 	t_separation		*token;
 	char		*user_input;
-	// char		**env;
+	t_env		*export;
 	t_env		*env;//////////////////////////
 	// char		*working_dir;
 	// char		*old_working_dir;
@@ -240,25 +238,33 @@ void	configure_interactive_signals_herdoc(void);
 
 
 //execution
+// built-in_functions
 int    echo_cmd(char **arg);
 int    cd_cmd(char **args, t_env **env);
 int    pwd_cmd(char **args);
 int    env_cmd(t_env *lst, char **arg);
 int    export_cmd(t_env **envrmnt, t_env **export, char **args);
 int    unset_cmd(t_env **env, t_env **export, char **args);
+int    exit_cmd(char **arg);
 
 void    copy_env(char **env, t_env **list);
 void    sort_env(t_env **env);
-int     ft_isoption(char *str);
 void    swap_nodes(t_env *lst, t_env **env);
 
 void	link_node(t_env **head, char *line);
-int     ft_lstsize(t_env *lst);
-t_env   *ft_lstnew(char *line);
-void    ft_lstadd_back(t_env **lst, t_env *new);
-t_env   *ft_lstlast(t_env *lst);
-void    ft_lstclear(t_env **lst);
-void    ft_lstdelone(t_env *lst);
+int	ft_lstsize(t_env *lst);
+t_env	*ft_lstnew(char *line);
+void	ft_lstadd_back(t_env **lst, t_env *new);
+t_env	*ft_lstlast(t_env *lst);
+void	ft_lstclear(t_env **lst);
+void	ft_lstdelone(t_env *lst);
+long long	ft_atoii(const char *str);
+
+//execve
+int    ft_execve(t_env *env, char *cmd, char **args);
+char     *find_program_path(t_env *env, char *cmd);
+char    **env_to_array(t_env *env);
+void    execution(t_data *data);
 
 
 #endif

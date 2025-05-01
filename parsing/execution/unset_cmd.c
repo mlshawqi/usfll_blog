@@ -48,18 +48,3 @@ int    unset_cmd(t_env **env, t_env **export, char **args)
         }
         return (0);
 }
-
-int     ft_isoption(char *str)
-{
-    int i;
-
-    i = 1;
-    while(str[i] != '\0')
-    {
-        if(str[0] == '-' && str[i] == 'n')
-            i++;
-        else
-            return (1);
-    }
-    return (0);
-}

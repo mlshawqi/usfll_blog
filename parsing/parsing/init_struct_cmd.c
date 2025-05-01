@@ -69,8 +69,13 @@ t_env *init_env_list(char **envp)///////////////////ajout
 
 bool ft_initialise_env(t_data *data, char **env)
 {
+    data->env = NULL;
+    data->export = NULL;
     copy_env(env, &data->env);
     if (!data->env)
+        return (false);
+    copy_env(env, &data->export);
+    if (!data->export)
         return (false);
     return (true);
 }

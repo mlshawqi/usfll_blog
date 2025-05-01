@@ -13,7 +13,7 @@ void	minishell_interactive(t_data *data)
 			break ;
 		}
 		process_user_input(data);
-		execution(data->cmd);
+		execution(data);
 		cleanup_shell_data(data, false);
 	}
 }
@@ -31,6 +31,7 @@ void	minishell_noninteractive(t_data *data, char *arg)
 	{
 		data->user_input = ft_strdup(user_inputs[i]);
 		process_user_input(data);
+		execution(data);
 		cleanup_shell_data(data, false);
 	}
 	free_string_array(user_inputs);
@@ -39,14 +40,12 @@ void	minishell_noninteractive(t_data *data, char *arg)
 int main(int ac, char **av, char **env)
 {
     t_data data;
-    ft_memset(&data, 0, sizeof(t_data));
 
-    data.env = NULL;
+    ft_memset(&data, 0, sizeof(t_data));
     if (!ft_initialise_data(&data, env)) {
         print_command_error("Fatal", NULL, "Could not initialize environment", 1);
         exit_shell(NULL, EXIT_FAILURE);
     }
-    copy_env(env, &data.env);
     if (!validate_startup_args(&data, ac, av)) {
         exit_shell(&data, EXIT_FAILURE);
     }

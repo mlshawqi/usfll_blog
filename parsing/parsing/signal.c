@@ -47,7 +47,7 @@ void	configure_interactive_signals_herdoc(void)
 {
 	struct sigaction	act;
 
-	ignore_quit_signal();
+	ignore_quit_signal();z
 	ft_memset(&act, 0, sizeof(act));
 	sigaction(SIGINT, &act, NULL);
 }
