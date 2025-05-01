@@ -1,0 +1,62 @@
+#include "../minishell.h"
+
+void	minishell_interactive(t_data *data)
+{
+	while (1)
+	{
+		configure_interactive_signals();
+		data->user_input = readline("Minishell> ");
+		configure_noninteractive_signals();
+		if (!data->user_input)
+		{
+			printf("exit\n");
+			break ;
+		}
+		process_user_input(data);
+		execution(data->cmd);
+		cleanup_shell_data(data, false);
+	}
+}
+
+void	minishell_noninteractive(t_data *data, char *arg)
+{
+	char	**user_inputs;
+	int		i;
+
+	user_inputs = ft_split(arg, ';');
+	if (!user_inputs)
+		exit_shell(data, EXIT_FAILURE);
+	i = 0;
+	if (user_inputs[i])
+	{
+		data->user_input = ft_strdup(user_inputs[i]);
+		process_user_input(data);
+		cleanup_shell_data(data, false);
+	}
+	free_string_array(user_inputs);
+}
+
+int main(int ac, char **av, char **env)
+{
+    t_data data;
+    ft_memset(&data, 0, sizeof(t_data));
+
+    data.env = NULL;
+    if (!ft_initialise_data(&data, env)) {
+        print_command_error("Fatal", NULL, "Could not initialize environment", 1);
+        exit_shell(NULL, EXIT_FAILURE);
+    }
+    copy_env(env, &data.env);
+    if (!validate_startup_args(&data, ac, av)) {
+        exit_shell(&data, EXIT_FAILURE);
+    }
+    if (data.interactive) {
+        minishell_interactive(&data);
+    }
+    else {
+        minishell_noninteractive(&data, av[2]);
+    }
+    exit_shell(&data, g_last_exit_code);
+
+    return 0;
+}
