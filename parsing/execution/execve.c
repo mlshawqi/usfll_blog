@@ -49,31 +49,31 @@ char     *find_program_path(t_env *env, char *cmd)
         return (path);
 }
 
-int    ft_execve(t_env *env, char *cmd, char **args)
+int    ft_execve(t_data *data)
 {
         char    **env_arr;
         char    *path;
         int     pid;
         int     status;
 
-        env_arr = env_to_array(env);
-        path = find_program_path(env, cmd);
+        env_arr = env_to_array(data->env);
+        path = find_program_path(data->env, data->cmd->command);
         if(path == NULL)
         {
-                perror(NULL);
-                return (-1);
+                printf("%s: command not found\n", data->cmd->command);
+                return (127);
         }
         pid = fork();
         if(pid == 0)
         {
-                if(execve(path, args, env_arr) == -1)
-                        printf("execve fail\n");
-                return (-1);
+                if(execve(path, data->cmd->args, env_arr) == -1) perror("execve");
+                return (127);
         }
         else
         {
                 waitpid(pid, &status, 0);
-                return (0);
+                if (WIFEXITED(status)) return WEXITSTATUS(status);
         }
+        free(path);
         return (0);
 }

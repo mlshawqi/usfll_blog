@@ -1,5 +1,7 @@
 #include "../minishell.h"
 
+int g_last_exit_code = 0;
+
 void	minishell_interactive(t_data *data)
 {
 	while (1)
@@ -13,7 +15,8 @@ void	minishell_interactive(t_data *data)
 			break ;
 		}
 		process_user_input(data);
-		execution(data);
+		if(data->cmd)
+			execution(data);
 		cleanup_shell_data(data, false);
 	}
 }
@@ -41,7 +44,7 @@ int main(int ac, char **av, char **env)
 {
     t_data data;
 
-    ft_memset(&data, 0, sizeof(t_data));
+//     ft_memset(&data, 0, sizeof(t_data));
     if (!ft_initialise_data(&data, env)) {
         print_command_error("Fatal", NULL, "Could not initialize environment", 1);
         exit_shell(NULL, EXIT_FAILURE);

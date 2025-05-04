@@ -55,12 +55,19 @@ typedef struct s_in_out_fds
 	// int		stdout_backup;
 }	t_in_out_fds;
 
+// typedef struct s_pipex{
+// 	int	fork_pid;
+// 	int	status;
+// }		t_pipex;
+
 typedef struct s_cmd
 {
 	char				*command;
 	char				**args;
 	bool				pipe_output;
 	t_in_out_fds			*io_fds;
+	int		fork_pid;
+	int		status;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }	t_cmd;
@@ -261,10 +268,13 @@ void	ft_lstdelone(t_env *lst);
 long long	ft_atoii(const char *str);
 
 //execve
-int    ft_execve(t_env *env, char *cmd, char **args);
+int     run_builtin_if_exists(t_data *data, char *command, char **args);
 char     *find_program_path(t_env *env, char *cmd);
 char    **env_to_array(t_env *env);
 void    execution(t_data *data);
+int    ft_execve(t_data *data);
+void    handle_redirections(t_data *data, t_cmd *tmp);
+int    execute_with_pipes(t_data *data, int npipe);
 
 
 #endif

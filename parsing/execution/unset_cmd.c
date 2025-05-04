@@ -36,7 +36,7 @@ int    unset_cmd(t_env **env, t_env **export, char **args)
                 if(args[0][0] == '-')
                 {
                     printf("unset : invalid option\n");
-                    return (-1);
+                    return (2);
                 }
                 else
                 {

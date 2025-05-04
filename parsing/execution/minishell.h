@@ -50,9 +50,9 @@ void	ft_lstclear(t_env **lst);
 void	ft_lstdelone(t_env *lst);
 
 //execve
-int    ft_execve(t_env *env, char *cmd, char **args);
-char     *find_program_path(t_env *env, char *cmd);
-char    **env_to_array(t_env *env);
+// int    ft_execve(t_env *env, char *cmd, char **args);
+// char     *find_program_path(t_env *env, char *cmd);
+// char    **env_to_array(t_env *env);
 
 // void	put_quotes_sign(char *line, char *env);
 // char	*manage_line(char *line);

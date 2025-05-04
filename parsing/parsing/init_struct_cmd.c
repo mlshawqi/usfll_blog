@@ -1,5 +1,7 @@
 #include "../minishell.h"
 
+
+
 void	init_cmd_in_out(t_cmd *cmd)
 {
 	if (!cmd->io_fds)
@@ -92,6 +94,5 @@ bool	ft_initialise_data(t_data *data, char **env)
 	data->token = NULL;
 	data->user_input = NULL;
 	data->cmd = NULL;
-	g_last_exit_code = 0;
 	return (true);
 }

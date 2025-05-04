@@ -50,7 +50,7 @@ char	**copy_args_to_new_tab(int existing_len, char **new_args,
 	i = 0;
 	while (i < existing_len)
 	{
-		new_args[i] = last_cmd->args[i];
+		new_args[i] = ft_strdup(last_cmd->args[i]);
 		i++;
 	}
 	while (current_token->type == WORD || current_token->type == VAR)
@@ -131,7 +131,7 @@ int	append_echo_arguments(t_separation **token_node, t_cmd *last_cmd)
 	len = 0;
 	while (last_cmd->args[len])
 		len++;
-	new_tab = malloc(sizeof(char *) * (nb_args + len + 1));
+	new_tab = ft_calloc((nb_args + len + 1), sizeof(char *));
 	if (!new_tab)
 		return (FAILURE);
 	new_tab = copy_args_to_new_tab(len, new_tab, last_cmd, current_token);

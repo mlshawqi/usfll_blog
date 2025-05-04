@@ -71,20 +71,20 @@ int    cd_cmd(char **args, t_env **env)
         if(change_home(*env) == -1)
         {
                 free(old);
-                return (-1);
+                return (2);
         }
     }
     else if(args[1])
     {
         printf("cd: too many arguments\n");
         free(old);
-        return (-1);
+        return (2);
     }
     else if(chdir(*args) == -1)
     {
         perror("cd");
         free(old);
-        return (-1);
+        return (2);
     }
     if(update_pwd2(env, &old) == -1) return (-1); 
     return (0);

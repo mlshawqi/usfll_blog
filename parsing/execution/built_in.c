@@ -9,14 +9,14 @@ int    pwd_cmd(char **args)
             if(args && (ft_strlen(args[0]) > 1) && args[0][0] == '-')
             {
                 printf("pwd: [%s]: invalid option\n", args[0]);
-                return (-1);
+                return (2);
             }
         }
         pwd = getcwd(NULL, 0);
         if(!pwd)
         {
             perror("pwd");
-            return (-1);
+            return (2);
         }
         printf("%s\n", pwd);
         free(pwd);
@@ -28,7 +28,7 @@ int    env_cmd(t_env *lst, char **arg)
         if(arg && arg[0])
         {
             printf("env: usage: env [no options or arguments allowed]\n");
-            return (-1);
+            return (2);
         }
         while(lst != NULL)
         {

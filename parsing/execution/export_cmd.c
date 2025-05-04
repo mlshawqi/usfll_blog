@@ -124,7 +124,7 @@ static int     valide_name(char *arg)
                 printf("minishell\nexport: not a valid identifier\n");
                 return (-1);
             }
-            while(ft_isalpha(arg[i]) == 1 || ft_isdigit(arg[i]) == 1)
+            while(ft_isalpha(arg[i]) == 1 || ft_isdigit(arg[i]) == 1 || arg[i] == '_')
                 i++;
             if(arg[i] == '=' || arg[i] == '\0')
                 return (0);
@@ -150,14 +150,14 @@ int    export_cmd(t_env **envrmnt, t_env **export, char **args)
             if(args[j][0] == '-')
             {
                 printf("export %s: invalid option\n", args[j]);
-                if(j == 0) return (-1);
+                if(j == 0) return (2);
             }
             if(valide_name(args[j]) == -1)
                 printf("minishell\n: export: '%s': not a valid identifier\n", args[j]);
             else
             {
                 if(export_fun(envrmnt, export, args[j], valide_name(args[j])))
-                    return (-1);
+                    return (2);
             }
             j++;           
         }
