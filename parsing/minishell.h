@@ -55,11 +55,6 @@ typedef struct s_in_out_fds
 	// int		stdout_backup;
 }	t_in_out_fds;
 
-// typedef struct s_pipex{
-// 	int	fork_pid;
-// 	int	status;
-// }		t_pipex;
-
 typedef struct s_cmd
 {
 	char				*command;
@@ -275,6 +270,13 @@ void    execution(t_data *data);
 int    ft_execve(t_data *data);
 void    handle_redirections(t_data *data, t_cmd *tmp);
 int    execute_with_pipes(t_data *data, int npipe);
+int     **allocate_pipes(int count);
+void    free_tab(int **arr, int i);
+int    handle_child_process(t_data *data, t_cmd *cmd, int **pipes, int i, int count);
+int    execute_command(t_data *data, t_cmd *cmd);
+void    close_pipes(int **pipes,int count);
+int     wait_for_all(t_data *data);
+void    handle_sigint_pipe(int sig);
 
 
 #endif

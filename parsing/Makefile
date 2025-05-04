@@ -39,7 +39,7 @@ SRCS	= 	./lexification/test1.c \
 SRC_EXECUTION = ./execution/linked_list.c ./execution/linked_list2.c ./execution/built_in.c \
 	./execution/export_cmd.c ./execution/echo_cmd.c ./execution/cd_cmd.c ./execution/execve.c \
 	./execution/export2_cmd.c ./execution/exit_cmd.c ./execution/unset_cmd.c \
-	./execution/ft_atoi2.c  ./execution/execute.c \
+	./execution/ft_atoi2.c  ./execution/execute.c ./execution/pipe_utils.c\
 	# ./execution/libft/ft_strcmp.c ./execution/libft/ft_strlcpy.c ./execution/libft/ft_isdigit.c \
 	# ./execution/libft/ft_strchr.c ./execution/libft/ft_split.c \
 	# .execution/libft/ft_strjoin.c ./execution/libft/ft_strdup.c./execution/libft/ft_strlen.c

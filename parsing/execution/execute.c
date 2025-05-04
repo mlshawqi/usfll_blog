@@ -49,6 +49,141 @@ void    handle_redirections(t_data *data, t_cmd *tmp)
 int    execute_with_pipes(t_data *data, int npipe)
 {
         t_cmd   *tmp;
+        int     **pipefd;//0 read 1 write
+        int     i;
+
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
+        tmp = data->cmd;
+        pipefd = allocate_pipes(npipe);
+        if(!pipefd)
+                return (1);
+        i = 0;
+        while(tmp)
+        {
+                tmp->fork_pid = fork();
+                if(tmp->fork_pid == 0)
+                {
+                        signal(SIGINT, SIG_DFL);
+                        signal(SIGQUIT, SIG_DFL);
+                        return (handle_child_process(data, tmp, pipefd, i, npipe));
+                }
+                tmp = tmp->next;
+                i++;
+        }
+        close_pipes(pipefd, npipe);
+        free_tab(pipefd, npipe);
+        return(wait_for_all(data));
+}
+
+
+int     n_pipeline(t_cmd *cmd)
+{
+        int     npipe;
+
+        npipe = 0;
+        while(cmd)
+        {
+                if(cmd->pipe_output)
+                        npipe++;
+                cmd = cmd->next;
+        }
+        return (npipe);
+}
+
+static int     sipmle_fork(t_data *data)
+{
+        t_cmd   *cmd1, *cmd2;
+        int     pipefd[2];
+        int     pid1, pid2;
+
+        cmd1 = data->cmd;
+        cmd2 = data->cmd->next;
+        if(pipe(pipefd) == -1)
+                perror("pipe");
+        pid1 = fork();
+        if(pid1 == 0)
+        {
+                // printf("execute in pid1 \n");
+                close(pipefd[0]);
+                dup2(pipefd[1], STDOUT_FILENO);
+                close(pipefd[1]);
+                char **env_arr = env_to_array(data->env);
+                char *path = find_program_path(data->env, cmd1->command);
+                if(run_builtin_if_exists(data, cmd1->command, cmd1->args) == 1)
+                {
+                        if(execve(path,  cmd1->args, env_arr) == -1)
+                                perror("execve");
+                }
+                exit(EXIT_FAILURE);
+        }
+        pid2 = fork();
+        if(pid2 == 0)
+        {
+                close(pipefd[1]);
+                dup2(pipefd[0], STDIN_FILENO);
+                close(pipefd[0]);
+                char **env_arr = env_to_array(data->env);
+                char *path = find_program_path(data->env, cmd2->command);
+                if(run_builtin_if_exists(data, cmd2->command, cmd2->args) == 1)
+                {
+                        if(execve(path,  cmd2->args, env_arr) == -1)
+                                perror("execve");
+                }
+                exit(EXIT_FAILURE);
+        }
+        else
+        {
+                close(pipefd[0]);
+                close(pipefd[1]);
+                waitpid(pid1, &cmd1->status, 0);
+                waitpid(pid2, &cmd2->status, 0);
+                if (WIFEXITED(cmd1->status)) return WEXITSTATUS(cmd1->status);
+                if (WIFEXITED(cmd2->status)) return WEXITSTATUS(cmd2->status);
+                // printf("pid1 exited with %d\n", WEXITSTATUS(cmd1->status));
+                // printf("pid2 exited with %d\n", WEXITSTATUS(cmd2->status));
+        }
+        return (0);
+}
+
+
+void    execution(t_data *data)
+{
+        int     npipe;
+
+        npipe = n_pipeline(data->cmd);
+        if(!npipe)
+        {
+                if(!data->cmd->io_fds)
+                {
+                        if(run_builtin_if_exists(data, data->cmd->command, data->cmd->args) == 1)
+                                g_last_exit_code = ft_execve(data);
+                }
+                else
+                        handle_redirections(data, data->cmd);
+        }
+        else
+                g_last_exit_code = sipmle_fork(data);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+int    execute_with_pipes(t_data *data, int npipe)
+{
+        t_cmd   *tmp;
         int     pipefd[npipe][2];//0 read 1 write
         int     i;
 
@@ -119,100 +254,7 @@ int    execute_with_pipes(t_data *data, int npipe)
         }
         return (0);
 }
-
-
-int     n_pipeline(t_cmd *cmd)
-{
-        int     npipe;
-
-        npipe = 0;
-        while(cmd)
-        {
-                if(cmd->pipe_output)
-                        npipe++;
-                cmd = cmd->next;
-        }
-        return (npipe);
-}
-
-static int     sipmle_fork(t_data *data)
-{
-        t_cmd   *tmp;
-        int     pipefd[2];
-        int     pid1, pid2;
-
-        tmp = data->cmd;
-        if(pipe(pipefd) == -1)
-                perror("pipe");
-        pid1 = fork();
-        if(pid1 == 0)
-        {
-                printf("execute in pid1 \n");
-                close(pipefd[0]);
-                dup2(pipefd[1], STDOUT_FILENO);
-                if(run_builtin_if_exists(data, tmp->command, tmp->args) == -1)
-                {
-                        if(execve(find_program_path(data->env, tmp->command),  tmp->args, env_to_array(data->env)) == -1)
-                                perror("execve");
-                }
-                close(pipefd[1]);
-                exit(EXIT_SUCCESS);
-        }
-        pid2 = fork();
-        if(pid2 == 0)
-        {
-                printf("execute in pid2\n");
-                close(pipefd[1]);
-                dup2(pipefd[0], STDIN_FILENO);
-                if(run_builtin_if_exists(data, tmp->next->command, tmp->next->args) == -1)
-                {
-                        if(execve(find_program_path(data->env, tmp->next->command),  tmp->next->args, env_to_array(data->env)) == -1)
-                                perror("execve");
-                }
-                close(pipefd[0]);
-                exit(EXIT_SUCCESS);
-        }
-        else
-        {
-                close(pipefd[0]);
-                close(pipefd[1]);
-                waitpid(pid1, &tmp->status, 0);
-                waitpid(pid2, &tmp->next->status, 0);
-        }
-        return (0);
-}
-
-void    execution(t_data *data)
-{
-        int     npipe;
-
-        npipe = n_pipeline(data->cmd);
-        if(!npipe)
-        {
-                if(!data->cmd->io_fds)
-                {
-                        if(run_builtin_if_exists(data, data->cmd->command, data->cmd->args) == 1)
-                                g_last_exit_code = ft_execve(data);
-                }
-                else
-                        handle_redirections(data, data->cmd);
-        }
-        else
-                sipmle_fork(data);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/
 
 
 
@@ -254,8 +296,8 @@ void    execution(t_data *data)
 // void    handle_sigint(int sig)
 // {
 //         (void)sig;
-        // rl_redisplay();
-        // printf("\nMinishell~$ ");
+//         rl_redisplay();
+//         printf("\nMinishell~$ ");
 // }
 // void    manage_exenv(t_data *data, char **env)
 // {
