@@ -54,12 +54,12 @@ void    close_pipes(int **pipes,int count)
 }
 void    handle_pipe_redirections(t_data *data, t_cmd *tmp)
 {
-        int     saved_stdout;
-        int     saved_stdin;
+        // int     saved_stdout;
+        // int     saved_stdin;
 
-        fprintf(stderr, "     hello from rider cmd %s\n", tmp->command);
-        saved_stdin = dup(STDIN_FILENO);
-        saved_stdout = dup(STDOUT_FILENO);
+        // fprintf(stderr, "     hello from rider cmd %s\n", tmp->command);
+        // saved_stdin = dup(STDIN_FILENO);
+        // saved_stdout = dup(STDOUT_FILENO);
         if(tmp->io_fds->fd_out != -1)
         {
                 dup2(tmp->io_fds->fd_out, STDOUT_FILENO);
@@ -72,10 +72,10 @@ void    handle_pipe_redirections(t_data *data, t_cmd *tmp)
         }
         if(run_builtin_if_exists(data, tmp) == 1)
                 g_last_exit_code = ft_execve_pipe(data, tmp);
-        dup2(saved_stdout, STDOUT_FILENO);
-        dup2(saved_stdin, STDIN_FILENO);
-        close(saved_stdout);
-        close(saved_stdin);
+        // dup2(saved_stdout, STDOUT_FILENO);
+        // dup2(saved_stdin, STDIN_FILENO);
+        // close(saved_stdout);
+        // close(saved_stdin);
 }
 int    ft_execve_pipe(t_data *data, t_cmd *cmd)
 {
@@ -92,13 +92,14 @@ int    ft_execve_pipe(t_data *data, t_cmd *cmd)
 
 int    execute_command(t_data *data, t_cmd *cmd)
 {
+        int status;
         if(!cmd->io_fds)
         {
                 if(run_builtin_if_exists(data, cmd) == 1)
                         return (ft_execve_pipe(data, cmd));
         }
         else if(cmd->io_fds)
-                handle_pipe_redirections(data, data->cmd);
+                handle_pipe_redirections(data, cmd);
         return (g_last_exit_code);
 }
 
@@ -124,10 +125,10 @@ int     wait_for_all(t_data *data)
                         else if (WTERMSIG(tmp->pipex->status) == SIGQUIT)
                                 write(1, "Quit: 3\n", 8);  // Like bash behavior
                 }
+                if (!tmp->next && WIFSIGNALED(tmp->pipex->status))
+                        return (WEXITSTATUS(tmp->pipex->status));
                 tmp = tmp->next;
         }
-        if (WIFSIGNALED(tmp->pipex->status))
-                return (WEXITSTATUS(tmp->pipex->status));
         return (0);
 }
 

@@ -46,38 +46,6 @@ void    handle_redirections(t_data *data, t_cmd *cmd)
         close(saved_stdin);
 }
 
-int    execute_with_pipes(t_data *data, int npipe)
-{
-        t_cmd   *tmp;
-        int     **pipefd;//0 read 1 write
-        int     i;
-
-        tmp = data->cmd;
-        pipefd = allocate_pipes(npipe);
-        if(!pipefd)
-                return (1);
-        i = 0;
-        while(tmp)
-        {
-                data->cmd->pipex = malloc(sizeof(t_pipex));
-                if(!data->cmd->pipex)
-                        return (-1);
-                ft_memset(data->cmd->pipex, 0, sizeof(t_pipex));
-                tmp->pipex->fork_pid = fork();
-                if(tmp->pipex->fork_pid == 0)
-                {
-                        signal(SIGINT, SIG_DFL);
-                        return (handle_child_process(data, tmp, pipefd, i, npipe));
-                }
-                tmp = tmp->next;
-                i++;
-        }
-        close_pipes(pipefd, npipe);
-        free_tab(pipefd, npipe);
-        return(wait_for_all(data));
-}
-
-
 int     n_pipeline(t_cmd *cmd)
 {
         int     npipe;
@@ -91,6 +59,40 @@ int     n_pipeline(t_cmd *cmd)
         }
         return (npipe);
 }
+
+
+int    execute_with_pipes(t_data *data, int npipe)
+{
+        t_cmd   *tmp;
+        int     **pipefd;//0 read 1 write
+        int     i;
+
+        tmp = data->cmd;
+        pipefd = allocate_pipes(npipe);
+        if(!pipefd)
+                return (1);
+        i = 0;
+        while(tmp)
+        {
+                tmp->pipex = malloc(sizeof(t_pipex));
+                if(!tmp->pipex)
+                        return (-1);
+                ft_memset(tmp->pipex, 0, sizeof(t_pipex));
+                tmp->pipex->fork_pid = fork();
+                // fprintf(stderr,"        --execute cmd on main %s\n", tmp->command);
+                if(tmp->pipex->fork_pid == 0)
+                {
+                        signal(SIGINT, SIG_DFL);       
+                        exit (handle_child_process(data, tmp, pipefd, i, npipe));
+                }
+                tmp = tmp->next;
+                i++;
+        }
+        close_pipes(pipefd, npipe);
+        free_tab(pipefd, npipe);
+        return(wait_for_all(data));
+}
+
 
 static int     sipmle_fork(t_data *data)
 {
@@ -171,7 +173,7 @@ void    execution(t_data *data)
                         handle_redirections(data, data->cmd);
         }
         else
-                g_last_exit_code = sipmle_fork(data);
+                g_last_exit_code = execute_with_pipes(data, npipe);
 }
 
 
