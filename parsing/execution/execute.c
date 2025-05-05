@@ -1,45 +1,45 @@
 #include "../minishell.h"
 
-int     run_builtin_if_exists(t_data *data, char *command, char **args)
+int     run_builtin_if_exists(t_data *data, t_cmd *cmd)
 {
-        if(ft_strcmp(command, "pwd") == 0)
-                g_last_exit_code = pwd_cmd(args + 1);
-        else if(ft_strcmp(command, "echo") == 0)
-                g_last_exit_code = echo_cmd(args + 1);
-        else if(ft_strcmp(command, "cd") == 0)
-                g_last_exit_code = cd_cmd(args + 1, &data->env);
-        else if(ft_strcmp(command, "env") == 0)
-                g_last_exit_code = env_cmd(data->env, args + 1);
-        else if(ft_strcmp(command, "exit") == 0)
-                g_last_exit_code = exit_cmd(args + 1);
-        else if(ft_strcmp(command, "export") == 0)
-                g_last_exit_code = export_cmd(&data->env, &data->export, args + 1);
-        else if(ft_strcmp(command, "unset") == 0)
-                g_last_exit_code = unset_cmd(&data->env, &data->export, args + 1);
+        if(ft_strcmp(cmd->command, "pwd") == 0)
+                g_last_exit_code = pwd_cmd(cmd->args + 1);
+        else if(ft_strcmp(cmd->command, "echo") == 0)
+                g_last_exit_code = echo_cmd(cmd->args + 1);
+        else if(ft_strcmp(cmd->command, "cd") == 0)
+                g_last_exit_code = cd_cmd(cmd->args + 1, &data->env);
+        else if(ft_strcmp(cmd->command, "env") == 0)
+                g_last_exit_code = env_cmd(data->env, cmd->args + 1);
+        else if(ft_strcmp(cmd->command, "exit") == 0)
+                g_last_exit_code = exit_cmd(cmd->args + 1);
+        else if(ft_strcmp(cmd->command, "export") == 0)
+                g_last_exit_code = export_cmd(&data->env, &data->export, cmd->args + 1);
+        else if(ft_strcmp(cmd->command, "unset") == 0)
+                g_last_exit_code = unset_cmd(&data->env, &data->export, cmd->args + 1);
         else
                 return (1);
         return (0);
 }
 
-void    handle_redirections(t_data *data, t_cmd *tmp)
+void    handle_redirections(t_data *data, t_cmd *cmd)
 {
         int     saved_stdout;
         int     saved_stdin;
 
         saved_stdin = dup(STDIN_FILENO);
         saved_stdout = dup(STDOUT_FILENO);
-        if(tmp->io_fds->fd_out != -1)
+        if(cmd->io_fds->fd_out != -1)
         {
-                dup2(tmp->io_fds->fd_out, STDOUT_FILENO);
-                close(tmp->io_fds->fd_out);
+                dup2(cmd->io_fds->fd_out, STDOUT_FILENO);
+                close(cmd->io_fds->fd_out);
         }
-        if(tmp->io_fds->fd_in != -1)
+        if(cmd->io_fds->fd_in != -1)
         {
-                dup2(tmp->io_fds->fd_in, STDIN_FILENO);
-                close(tmp->io_fds->fd_in);
+                dup2(cmd->io_fds->fd_in, STDIN_FILENO);
+                close(cmd->io_fds->fd_in);
         }
-        if(run_builtin_if_exists(data, tmp->command, tmp->args) == 1)
-                g_last_exit_code = ft_execve(data);
+        if(run_builtin_if_exists(data, cmd) == 1)
+                g_last_exit_code = ft_execve(data, cmd);
         dup2(saved_stdout, STDOUT_FILENO);
         dup2(saved_stdin, STDIN_FILENO);
         close(saved_stdout);
@@ -52,8 +52,6 @@ int    execute_with_pipes(t_data *data, int npipe)
         int     **pipefd;//0 read 1 write
         int     i;
 
-        signal(SIGINT, SIG_IGN);
-        signal(SIGQUIT, SIG_IGN);
         tmp = data->cmd;
         pipefd = allocate_pipes(npipe);
         if(!pipefd)
@@ -61,11 +59,14 @@ int    execute_with_pipes(t_data *data, int npipe)
         i = 0;
         while(tmp)
         {
-                tmp->fork_pid = fork();
-                if(tmp->fork_pid == 0)
+                data->cmd->pipex = malloc(sizeof(t_pipex));
+                if(!data->cmd->pipex)
+                        return (-1);
+                ft_memset(data->cmd->pipex, 0, sizeof(t_pipex));
+                tmp->pipex->fork_pid = fork();
+                if(tmp->pipex->fork_pid == 0)
                 {
                         signal(SIGINT, SIG_DFL);
-                        signal(SIGQUIT, SIG_DFL);
                         return (handle_child_process(data, tmp, pipefd, i, npipe));
                 }
                 tmp = tmp->next;
@@ -94,52 +95,54 @@ int     n_pipeline(t_cmd *cmd)
 static int     sipmle_fork(t_data *data)
 {
         t_cmd   *cmd1, *cmd2;
-        int     pipefd[2];
-        int     pid1, pid2;
+        int     pipefd[2];;
 
         cmd1 = data->cmd;
         cmd2 = data->cmd->next;
         if(pipe(pipefd) == -1)
                 perror("pipe");
-        pid1 = fork();
-        if(pid1 == 0)
+        cmd1->pipex = malloc(sizeof(t_pipex));
+        if(!cmd1->pipex)
+                return (-1);
+        ft_memset(cmd1->pipex, 0, sizeof(t_pipex));
+        cmd1->pipex->fork_pid = fork();
+        if(cmd1->pipex->fork_pid == 0)
         {
                 // printf("execute in pid1 \n");
+                signal(SIGINT, SIG_DFL);
                 close(pipefd[0]);
                 dup2(pipefd[1], STDOUT_FILENO);
                 close(pipefd[1]);
-                char **env_arr = env_to_array(data->env);
-                char *path = find_program_path(data->env, cmd1->command);
-                if(run_builtin_if_exists(data, cmd1->command, cmd1->args) == 1)
-                {
-                        if(execve(path,  cmd1->args, env_arr) == -1)
-                                perror("execve");
-                }
-                exit(EXIT_FAILURE);
+                exit(execute_command(data, cmd1));
         }
-        pid2 = fork();
-        if(pid2 == 0)
+        cmd2->pipex = malloc(sizeof(t_pipex));
+        if(!cmd2->pipex)
+                return (-1);
+        ft_memset(cmd2->pipex, 0, sizeof(t_pipex));
+        cmd2->pipex->fork_pid = fork();
+        if(cmd2->pipex->fork_pid == 0)
         {
+                signal(SIGINT, SIG_DFL);
                 close(pipefd[1]);
                 dup2(pipefd[0], STDIN_FILENO);
                 close(pipefd[0]);
-                char **env_arr = env_to_array(data->env);
-                char *path = find_program_path(data->env, cmd2->command);
-                if(run_builtin_if_exists(data, cmd2->command, cmd2->args) == 1)
-                {
-                        if(execve(path,  cmd2->args, env_arr) == -1)
-                                perror("execve");
-                }
-                exit(EXIT_FAILURE);
+                exit(execute_command(data, cmd2));
         }
         else
         {
                 close(pipefd[0]);
                 close(pipefd[1]);
-                waitpid(pid1, &cmd1->status, 0);
-                waitpid(pid2, &cmd2->status, 0);
-                if (WIFEXITED(cmd1->status)) return WEXITSTATUS(cmd1->status);
-                if (WIFEXITED(cmd2->status)) return WEXITSTATUS(cmd2->status);
+                waitpid(cmd2->pipex->fork_pid, &cmd2->pipex->status, 0);
+                waitpid(cmd1->pipex->fork_pid, &cmd1->pipex->status, 0);
+                if (WIFSIGNALED(cmd1->pipex->status) || WIFSIGNALED(cmd2->pipex->status))
+                {
+                        if (WTERMSIG(cmd1->pipex->status) == SIGINT || WTERMSIG(cmd2->pipex->status) == SIGINT)
+                                write(1, "\n", 1);  // Clean newline on Ctrl+C
+	                else if (WTERMSIG(cmd1->pipex->status) == SIGQUIT || WTERMSIG(cmd2->pipex->status) == SIGQUIT)
+                                write(1, "Quit: 3\n", 8);  // Like bash behavior
+                }
+                if (WIFEXITED(cmd1->pipex->status)) return WEXITSTATUS(cmd1->pipex->status);
+                if (WIFEXITED(cmd2->pipex->status)) return WEXITSTATUS(cmd2->pipex->status);
                 // printf("pid1 exited with %d\n", WEXITSTATUS(cmd1->status));
                 // printf("pid2 exited with %d\n", WEXITSTATUS(cmd2->status));
         }
@@ -152,12 +155,17 @@ void    execution(t_data *data)
         int     npipe;
 
         npipe = n_pipeline(data->cmd);
+        data->env_arr = env_to_array(data->env);
         if(!npipe)
         {
+                data->cmd->pipex = malloc(sizeof(t_pipex));
+                if(!data->cmd->pipex)
+                        return;
+                ft_memset(data->cmd->pipex, 0, sizeof(t_pipex));
                 if(!data->cmd->io_fds)
                 {
-                        if(run_builtin_if_exists(data, data->cmd->command, data->cmd->args) == 1)
-                                g_last_exit_code = ft_execve(data);
+                        if(run_builtin_if_exists(data, data->cmd) == 1)
+                                g_last_exit_code = ft_execve(data, data->cmd);
                 }
                 else
                         handle_redirections(data, data->cmd);

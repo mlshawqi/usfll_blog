@@ -91,6 +91,7 @@ bool	ft_initialise_data(t_data *data, char **env)
 			"Could not initialize environment", 1);
 		return (false);
 	}
+    data->env_arr = NULL;
 	data->token = NULL;
 	data->user_input = NULL;
 	data->cmd = NULL;

@@ -49,16 +49,13 @@ char     *find_program_path(t_env *env, char *cmd)
         return (path);
 }
 
-int    ft_execve(t_data *data)
+int    ft_execve(t_data *data, t_cmd *cmd)
 {
-        char    **env_arr;
-        char    *path;
         int     pid;
         int     status;
 
-        env_arr = env_to_array(data->env);
-        path = find_program_path(data->env, data->cmd->command);
-        if(path == NULL)
+        cmd->pipex->path = find_program_path(data->env, data->cmd->command);
+        if(cmd->pipex->path == NULL)
         {
                 printf("%s: command not found\n", data->cmd->command);
                 return (127);
@@ -66,7 +63,8 @@ int    ft_execve(t_data *data)
         pid = fork();
         if(pid == 0)
         {
-                if(execve(path, data->cmd->args, env_arr) == -1) perror("execve");
+                if(execve(cmd->pipex->path, data->cmd->args, data->env_arr) == -1)
+                        perror("execve");
                 return (127);
         }
         else
@@ -74,6 +72,5 @@ int    ft_execve(t_data *data)
                 waitpid(pid, &status, 0);
                 if (WIFEXITED(status)) return WEXITSTATUS(status);
         }
-        free(path);
         return (0);
 }

@@ -5,6 +5,7 @@ void	init_command(t_cmd **cmd)
 	(*cmd)->command = NULL;
 	(*cmd)->args = NULL;
 	(*cmd)->pipe_output = false;
+	(*cmd)->pipex = NULL;
 	(*cmd)->prev = NULL;
 	(*cmd)->next = NULL;
 }

@@ -52,27 +52,54 @@ void    close_pipes(int **pipes,int count)
                 i++;
         }
 }
+void    handle_pipe_redirections(t_data *data, t_cmd *tmp)
+{
+        int     saved_stdout;
+        int     saved_stdin;
+
+        fprintf(stderr, "     hello from rider cmd %s\n", tmp->command);
+        saved_stdin = dup(STDIN_FILENO);
+        saved_stdout = dup(STDOUT_FILENO);
+        if(tmp->io_fds->fd_out != -1)
+        {
+                dup2(tmp->io_fds->fd_out, STDOUT_FILENO);
+                close(tmp->io_fds->fd_out);
+        }
+        if(tmp->io_fds->fd_in != -1)
+        {
+                dup2(tmp->io_fds->fd_in, STDIN_FILENO);
+                close(tmp->io_fds->fd_in);
+        }
+        if(run_builtin_if_exists(data, tmp) == 1)
+                g_last_exit_code = ft_execve_pipe(data, tmp);
+        dup2(saved_stdout, STDOUT_FILENO);
+        dup2(saved_stdin, STDIN_FILENO);
+        close(saved_stdout);
+        close(saved_stdin);
+}
+int    ft_execve_pipe(t_data *data, t_cmd *cmd)
+{
+        cmd->pipex->path = find_program_path(data->env, cmd->command);
+        if(cmd->pipex->path == NULL)
+        {
+                printf("%s: command not found\n", cmd->command);
+                return (127);
+        }        
+        if(execve(cmd->pipex->path,  cmd->args, data->env_arr) == -1)
+                perror("execve");
+        return (EXIT_FAILURE);       
+}
 
 int    execute_command(t_data *data, t_cmd *cmd)
 {
-        char **env_arr;
-        char *path;
-
-        if(run_builtin_if_exists(data, cmd->command, cmd->args) == 1)
+        if(!cmd->io_fds)
         {
-                printf("________here execve\n");
-                env_arr = env_to_array(data->env);
-                path = find_program_path(data->env, cmd->command);
-                if(path == NULL)
-                {
-                        printf("%s: command not found\n", data->cmd->command);
-                        return (127);
-                }        
-                if(execve(path,  cmd->args, env_arr) == -1)
-                        perror("execve");
-                return (EXIT_FAILURE);
+                if(run_builtin_if_exists(data, cmd) == 1)
+                        return (ft_execve_pipe(data, cmd));
         }
-        return (EXIT_SUCCESS);
+        else if(cmd->io_fds)
+                handle_pipe_redirections(data, data->cmd);
+        return (g_last_exit_code);
 }
 
 void    handle_sigint_pipe(int sig)
@@ -85,25 +112,28 @@ void    handle_sigint_pipe(int sig)
 int     wait_for_all(t_data *data)
 {
         t_cmd   *tmp;
-        int last_status;
         
-        tmp = data->cmd;
-        last_status= 0;    
+        tmp = data->cmd;   
         while (tmp)
         {
-                waitpid(tmp->fork_pid, &tmp->status, 0);
-                if (tmp->next == NULL && WIFEXITED(tmp->status))
-                        last_status = WEXITSTATUS(tmp->status);
+                waitpid(tmp->pipex->fork_pid, &tmp->pipex->status, 0);
+                if (WIFSIGNALED(tmp->pipex->status))
+                {
+                        if (WTERMSIG(tmp->pipex->status) == SIGINT)
+                                write(1, "\n", 1);
+                        else if (WTERMSIG(tmp->pipex->status) == SIGQUIT)
+                                write(1, "Quit: 3\n", 8);  // Like bash behavior
+                }
                 tmp = tmp->next;
         }
-        signal(SIGINT, handle_sigint_pipe);
-        signal(SIGQUIT, handle_sigint_pipe);
-        return (last_status);
+        if (WIFSIGNALED(tmp->pipex->status))
+                return (WEXITSTATUS(tmp->pipex->status));
+        return (0);
 }
 
 int    handle_child_process(t_data *data, t_cmd *cmd, int **pipes, int i, int count)
 {
-        printf("--------here chiled process cmd %s\n", cmd->command);
+        // printf("--------here chiled process cmd %s\n", cmd->command);
         if(!cmd->prev)
         {
                 dup2(pipes[i][1], STDOUT_FILENO);
