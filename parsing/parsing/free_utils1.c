@@ -108,6 +108,8 @@ void	cleanup_shell_data(t_data *data, bool clear_history)
 	free_command_list(&data->cmd, &free_str);
 	if (clear_history)
 	{
+		if(data->cmd)
+			free_str(data->pwd);
 		free_env_list(&data->env);
 		free_env_list(&data->export);
 		rl_clear_history();

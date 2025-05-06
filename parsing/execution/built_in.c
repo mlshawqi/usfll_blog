@@ -1,8 +1,8 @@
 #include "../minishell.h"
 
-int    pwd_cmd(char **args)
+int    pwd_cmd(t_data *data, char **args)
 {
-        char *pwd;
+        char *cwd;
 
         if(args && args[0])
         {
@@ -12,14 +12,20 @@ int    pwd_cmd(char **args)
                 return (2);
             }
         }
-        pwd = getcwd(NULL, 0);
-        if(!pwd)
+        cwd = getcwd(NULL, 0);
+        if (cwd)
         {
-            perror("pwd");
-            return (2);
+            printf("%s\n", cwd);
+            free_str(data->pwd);
+            data->pwd = cwd;
         }
-        printf("%s\n", pwd);
-        free(pwd);
+        else
+        {
+            if (data->pwd)
+                printf("%s\n", data->pwd);
+            else
+                print_cmd_error("pwd", "getcwd failed"); return (1);
+        }
         return (0);
 }
 

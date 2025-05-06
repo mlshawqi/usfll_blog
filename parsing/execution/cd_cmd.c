@@ -36,56 +36,67 @@ static void    update_pwd(t_env **env, char *path, char hint)
     while(lst)
     {
         if(hint == 'P' && (ft_strcmp(lst->name, "PWD") == 0))
-            {
-                free(lst->value);
-                lst->value = ft_strdup(path);
+        {
+                free_str(lst->value);
+                if(!path)
+                    lst->value = NULL;
+                else
+                    lst->value = ft_strdup(path);
                 break;
-            }
+        }
         else if(hint == 'O' && (ft_strcmp(lst->name, "OLDPWD") == 0))
-            {
-                free(lst->value);
-                lst->value = ft_strdup(path);
+        {
+                free_str(lst->value);
+                if(!path)
+                    lst->value = NULL;
+                else
+                    lst->value = ft_strdup(path);
                 break;
-            }
+        }
         lst = lst->next;
     }
 }
 
-static int    update_pwd2(t_env **env, char **old)
+static int    update_pwd2(t_data *data, t_env **env, char *old)
 {
-        update_pwd(env, *old, 'O');
-            free(*old);
-        *old = getcwd(NULL, 0);
-        update_pwd(env, *old, 'P');
-        free(*old);
+        update_pwd(env, old, 'O');
+        update_pwd(env, getcwd(NULL, 0), 'P');
+        if(data->pwd)
+        {
+            free_str(data->pwd);
+            data->pwd = getcwd(NULL, 0);
+        }
         return (0);
 }
 
-int    cd_cmd(char **args, t_env **env)
+int    cd_cmd(char **args, t_env **env, t_data *data)
 {
     char    *old;
 
+    
     old = getcwd(NULL, 0);
     if((!args || !args[0]) || (ft_strcmp(args[0], "~") == 0 && !args[1]))
     {
         if(change_home(*env) == -1)
         {
-                free(old);
+                if (old) free(old);
                 return (2);
         }
     }
     else if(args[1])
     {
         printf("cd: too many arguments\n");
-        free(old);
+        if (old) free(old);
         return (2);
     }
     else if(chdir(*args) == -1)
     {
         perror("cd");
-        free(old);
+        if (old) free(old);
         return (2);
     }
-    if(update_pwd2(env, &old) == -1) return (-1); 
+    update_pwd2(data, env, old);
+    if(old)
+        free(old);
     return (0);
 }

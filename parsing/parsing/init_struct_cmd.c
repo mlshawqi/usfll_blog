@@ -82,7 +82,6 @@ bool ft_initialise_env(t_data *data, char **env)
     return (true);
 }
 
-
 bool	ft_initialise_data(t_data *data, char **env)
 {
 	if (!ft_initialise_env(data, env))
@@ -91,6 +90,8 @@ bool	ft_initialise_data(t_data *data, char **env)
 			"Could not initialize environment", 1);
 		return (false);
 	}
+    data->pwd = NULL;
+    data->pwd = getcwd(NULL, 0);
     data->env_arr = NULL;
 	data->token = NULL;
 	data->user_input = NULL;

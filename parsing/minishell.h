@@ -88,6 +88,7 @@ typedef struct s_data
 	t_env		*export;
 	t_env		*env;
 	char		**env_arr;
+	char		*pwd;
 	// char		*working_dir;
 	// char		*old_working_dir;
 	t_cmd	*cmd;
@@ -249,8 +250,8 @@ void	configure_interactive_signals_herdoc(void);
 //execution
 // built-in_functions
 int    echo_cmd(char **arg);
-int    cd_cmd(char **args, t_env **env);
-int    pwd_cmd(char **args);
+int    cd_cmd(char **args, t_env **env, t_data *data);
+int    pwd_cmd(t_data *data, char **args);
 int    env_cmd(t_env *lst, char **arg);
 int    export_cmd(t_env **envrmnt, t_env **export, char **args);
 int    unset_cmd(t_env **env, t_env **export, char **args);

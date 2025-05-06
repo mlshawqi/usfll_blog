@@ -3,11 +3,11 @@
 int     run_builtin_if_exists(t_data *data, t_cmd *cmd)
 {
         if(ft_strcmp(cmd->command, "pwd") == 0)
-                g_last_exit_code = pwd_cmd(cmd->args + 1);
+                g_last_exit_code = pwd_cmd(data, cmd->args + 1);
         else if(ft_strcmp(cmd->command, "echo") == 0)
                 g_last_exit_code = echo_cmd(cmd->args + 1);
         else if(ft_strcmp(cmd->command, "cd") == 0)
-                g_last_exit_code = cd_cmd(cmd->args + 1, &data->env);
+                g_last_exit_code = cd_cmd(cmd->args + 1, &data->env, data);
         else if(ft_strcmp(cmd->command, "env") == 0)
                 g_last_exit_code = env_cmd(data->env, cmd->args + 1);
         else if(ft_strcmp(cmd->command, "exit") == 0)
