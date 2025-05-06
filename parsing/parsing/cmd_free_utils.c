@@ -9,8 +9,13 @@ void	free_command(t_cmd *cmd, void (*del)(void *))
 		(*del)(cmd->command);
 	if (cmd->args)
 		free_string_array(cmd->args);
-	// if (cmd->pipe_fd)
-	// 	(*del)(cmd->pipe_fd);
+	if (cmd->pipex)
+	{
+		if(cmd->pipex->path)
+			free_str(cmd->pipex->path);
+		free(cmd->pipex);
+		cmd->pipex = NULL;
+	}
 	if (cmd->io_fds)
 		free_in_out(cmd->io_fds);
 	(*del)(cmd);

@@ -273,7 +273,7 @@ long long	ft_atoii(const char *str);
 int     run_builtin_if_exists(t_data *data, t_cmd *cmd);
 char     *find_program_path(t_env *env, char *cmd);
 char    **env_to_array(t_env *env);
-void    execution(t_data *data);
+int    execution(t_data *data);
 int    ft_execve(t_data *data, t_cmd *cmd);
 void    handle_redirections(t_data *data, t_cmd *tmp);
 int    execute_with_pipes(t_data *data, int npipe);
@@ -286,6 +286,10 @@ int     wait_for_all(t_data *data);
 void    handle_sigint_pipe(int sig);
 int    ft_execve_pipe(t_data *data, t_cmd *cmd);
 void    handle_pipe_redirections(t_data *data, t_cmd *tmp);
+int     init_or_count_pipes(t_cmd *cmd, int hint);
+int	malloc_error(const char *context);
+void    print_cmd_error(const char *cmd, const char *msg);
+char    *valid_path(char *str, char *cmd);
 
 
 #endif

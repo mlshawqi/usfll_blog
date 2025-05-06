@@ -10,6 +10,7 @@ void    free_tab(int **arr, int i)
                 i--;
         }
         free(arr);
+        arr = NULL;
 }
 
 int     **allocate_pipes(int count)
@@ -52,14 +53,9 @@ void    close_pipes(int **pipes,int count)
                 i++;
         }
 }
+
 void    handle_pipe_redirections(t_data *data, t_cmd *tmp)
 {
-        // int     saved_stdout;
-        // int     saved_stdin;
-
-        // fprintf(stderr, "     hello from rider cmd %s\n", tmp->command);
-        // saved_stdin = dup(STDIN_FILENO);
-        // saved_stdout = dup(STDOUT_FILENO);
         if(tmp->io_fds->fd_out != -1)
         {
                 dup2(tmp->io_fds->fd_out, STDOUT_FILENO);
@@ -72,19 +68,13 @@ void    handle_pipe_redirections(t_data *data, t_cmd *tmp)
         }
         if(run_builtin_if_exists(data, tmp) == 1)
                 g_last_exit_code = ft_execve_pipe(data, tmp);
-        // dup2(saved_stdout, STDOUT_FILENO);
-        // dup2(saved_stdin, STDIN_FILENO);
-        // close(saved_stdout);
-        // close(saved_stdin);
 }
+
 int    ft_execve_pipe(t_data *data, t_cmd *cmd)
 {
         cmd->pipex->path = find_program_path(data->env, cmd->command);
-        if(cmd->pipex->path == NULL)
-        {
-                printf("%s: command not found\n", cmd->command);
+        if(!cmd->pipex->path)
                 return (127);
-        }        
         if(execve(cmd->pipex->path,  cmd->args, data->env_arr) == -1)
                 perror("execve");
         return (EXIT_FAILURE);       
@@ -103,12 +93,12 @@ int    execute_command(t_data *data, t_cmd *cmd)
         return (g_last_exit_code);
 }
 
-void    handle_sigint_pipe(int sig)
-{
-        (void)sig;
-        rl_redisplay();
-        printf("\nMinishell~$ ");
-}
+// void    handle_sigint_pipe(int sig)
+// {
+//         (void)sig;
+//         rl_redisplay();
+//         printf("\nMinishell~$ ");
+// }
 
 int     wait_for_all(t_data *data)
 {
@@ -123,10 +113,15 @@ int     wait_for_all(t_data *data)
                         if (WTERMSIG(tmp->pipex->status) == SIGINT)
                                 write(1, "\n", 1);
                         else if (WTERMSIG(tmp->pipex->status) == SIGQUIT)
-                                write(1, "Quit: 3\n", 8);  // Like bash behavior
+                                write(1, "Quit: 3\n", 8);
                 }
-                if (!tmp->next && WIFSIGNALED(tmp->pipex->status))
+                if (!tmp->next)
+                {
+                    if (WIFSIGNALED(tmp->pipex->status))
+                        return  (128 + WTERMSIG(tmp->pipex->status));
+                    else if (WIFEXITED(tmp->pipex->status))
                         return (WEXITSTATUS(tmp->pipex->status));
+                }
                 tmp = tmp->next;
         }
         return (0);
@@ -134,7 +129,6 @@ int     wait_for_all(t_data *data)
 
 int    handle_child_process(t_data *data, t_cmd *cmd, int **pipes, int i, int count)
 {
-        // printf("--------here chiled process cmd %s\n", cmd->command);
         if(!cmd->prev)
         {
                 dup2(pipes[i][1], STDOUT_FILENO);

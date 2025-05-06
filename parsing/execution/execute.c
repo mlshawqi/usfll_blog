@@ -46,16 +46,26 @@ void    handle_redirections(t_data *data, t_cmd *cmd)
         close(saved_stdin);
 }
 
-int     n_pipeline(t_cmd *cmd)
+int     init_or_count_pipes(t_cmd *cmd, int hint)
 {
         int     npipe;
 
         npipe = 0;
-        while(cmd)
+        if(hint == 1)
         {
-                if(cmd->pipe_output)
-                        npipe++;
-                cmd = cmd->next;
+                cmd->pipex = malloc(sizeof(t_pipex));
+                if(!cmd->pipex)
+                        return (-1);
+                ft_memset(cmd->pipex, 0, sizeof(t_pipex));
+        }
+        else
+        {
+                while(cmd)
+                {
+                        if(cmd->pipe_output)
+                                npipe++;
+                        cmd = cmd->next;
+                }
         }
         return (npipe);
 }
@@ -70,16 +80,13 @@ int    execute_with_pipes(t_data *data, int npipe)
         tmp = data->cmd;
         pipefd = allocate_pipes(npipe);
         if(!pipefd)
-                return (1);
+                return (malloc_error("pipes[][]"));;
         i = 0;
         while(tmp)
         {
-                tmp->pipex = malloc(sizeof(t_pipex));
-                if(!tmp->pipex)
-                        return (-1);
-                ft_memset(tmp->pipex, 0, sizeof(t_pipex));
+                if(init_or_count_pipes(tmp, 1) == -1)
+                        return (malloc_error("t_pipex pipex"));;
                 tmp->pipex->fork_pid = fork();
-                // fprintf(stderr,"        --execute cmd on main %s\n", tmp->command);
                 if(tmp->pipex->fork_pid == 0)
                 {
                         signal(SIGINT, SIG_DFL);       
@@ -93,77 +100,18 @@ int    execute_with_pipes(t_data *data, int npipe)
         return(wait_for_all(data));
 }
 
-
-static int     sipmle_fork(t_data *data)
-{
-        t_cmd   *cmd1, *cmd2;
-        int     pipefd[2];;
-
-        cmd1 = data->cmd;
-        cmd2 = data->cmd->next;
-        if(pipe(pipefd) == -1)
-                perror("pipe");
-        cmd1->pipex = malloc(sizeof(t_pipex));
-        if(!cmd1->pipex)
-                return (-1);
-        ft_memset(cmd1->pipex, 0, sizeof(t_pipex));
-        cmd1->pipex->fork_pid = fork();
-        if(cmd1->pipex->fork_pid == 0)
-        {
-                // printf("execute in pid1 \n");
-                signal(SIGINT, SIG_DFL);
-                close(pipefd[0]);
-                dup2(pipefd[1], STDOUT_FILENO);
-                close(pipefd[1]);
-                exit(execute_command(data, cmd1));
-        }
-        cmd2->pipex = malloc(sizeof(t_pipex));
-        if(!cmd2->pipex)
-                return (-1);
-        ft_memset(cmd2->pipex, 0, sizeof(t_pipex));
-        cmd2->pipex->fork_pid = fork();
-        if(cmd2->pipex->fork_pid == 0)
-        {
-                signal(SIGINT, SIG_DFL);
-                close(pipefd[1]);
-                dup2(pipefd[0], STDIN_FILENO);
-                close(pipefd[0]);
-                exit(execute_command(data, cmd2));
-        }
-        else
-        {
-                close(pipefd[0]);
-                close(pipefd[1]);
-                waitpid(cmd2->pipex->fork_pid, &cmd2->pipex->status, 0);
-                waitpid(cmd1->pipex->fork_pid, &cmd1->pipex->status, 0);
-                if (WIFSIGNALED(cmd1->pipex->status) || WIFSIGNALED(cmd2->pipex->status))
-                {
-                        if (WTERMSIG(cmd1->pipex->status) == SIGINT || WTERMSIG(cmd2->pipex->status) == SIGINT)
-                                write(1, "\n", 1);  // Clean newline on Ctrl+C
-	                else if (WTERMSIG(cmd1->pipex->status) == SIGQUIT || WTERMSIG(cmd2->pipex->status) == SIGQUIT)
-                                write(1, "Quit: 3\n", 8);  // Like bash behavior
-                }
-                if (WIFEXITED(cmd1->pipex->status)) return WEXITSTATUS(cmd1->pipex->status);
-                if (WIFEXITED(cmd2->pipex->status)) return WEXITSTATUS(cmd2->pipex->status);
-                // printf("pid1 exited with %d\n", WEXITSTATUS(cmd1->status));
-                // printf("pid2 exited with %d\n", WEXITSTATUS(cmd2->status));
-        }
-        return (0);
-}
-
-
-void    execution(t_data *data)
+int    execution(t_data *data)
 {
         int     npipe;
 
-        npipe = n_pipeline(data->cmd);
+        npipe = init_or_count_pipes(data->cmd, 0);
         data->env_arr = env_to_array(data->env);
+        if(!data->env_arr)
+                return (malloc_error("t_data env_array")); 
         if(!npipe)
         {
-                data->cmd->pipex = malloc(sizeof(t_pipex));
-                if(!data->cmd->pipex)
-                        return;
-                ft_memset(data->cmd->pipex, 0, sizeof(t_pipex));
+                if(init_or_count_pipes(data->cmd, 1) == -1)
+                        return (malloc_error("t_pipex pipex"));
                 if(!data->cmd->io_fds)
                 {
                         if(run_builtin_if_exists(data, data->cmd) == 1)
@@ -174,6 +122,30 @@ void    execution(t_data *data)
         }
         else
                 g_last_exit_code = execute_with_pipes(data, npipe);
+        return (0);
+}
+
+
+int	malloc_error(const char *context)
+{
+	if (context)
+	{
+		write(2, "warning: failed to allocate ", 28);
+		write(2, context, strlen(context));
+		write(2, "\n", 1);
+	}
+	else
+		write(2, "warning: malloc failed\n", 15);
+        g_last_exit_code = 1;
+	return (1);
+}
+
+void    print_cmd_error(const char *cmd, const char *msg)
+{
+        write(2, cmd, strlen(cmd));
+        write(2, ": ", 2);
+        write(2, msg, strlen(msg));
+        write(2, "\n", 1);
 }
 
 

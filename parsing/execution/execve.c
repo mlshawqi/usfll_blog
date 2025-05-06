@@ -7,12 +7,18 @@ char    **env_to_array(t_env *env)
         char    *tmp;
 
         i = 0;
-        array = malloc(sizeof(char *) * ft_lstsize(env) + 1);
+        array = malloc(sizeof(char *) * (ft_lstsize(env) + 1));
+        if (!array)
+                return (NULL);
         while(env)
         {
                 tmp = ft_strjoin(env->name, "=");
+                if(!tmp)
+                        return (free_string_array(array), NULL);
                 array[i] = ft_strjoin(tmp, env->value);
                 free(tmp);
+                if (!array[i])
+                        return (free_string_array(array), NULL);
                 env = env->next;
                 i++;
         }
@@ -20,32 +26,48 @@ char    **env_to_array(t_env *env)
         return (array);
 }
 
+char    *valid_path(char *str, char *cmd)
+{
+        char    *tmp;
+        char    *path;
+
+        tmp = NULL;
+        path = NULL;
+        tmp = ft_strjoin(str, "/");
+        path = ft_strjoin(tmp, cmd);
+        free(tmp);
+        if(access(path, X_OK) == 0)
+                return (path);
+        free(path);
+        return (NULL);
+}
+
 char     *find_program_path(t_env *env, char *cmd)
 {
         char    **arr;
         char    *path;
-        char    *tmp;
         int     i;
+        t_env   *tmp_env;
 
-        while(env)
+        arr = NULL;
+        tmp_env = env;
+        while(tmp_env)
         {
-                if(ft_strcmp(env->name, "PATH") == 0)
-                        arr = ft_split(env->value, ':');
-                env = env->next;
+                if(ft_strcmp(tmp_env->name, "PATH") == 0)
+                        arr = ft_split(tmp_env->value, ':');
+                tmp_env = tmp_env->next;
         }
         i = 0;
-        path = NULL;
-        while(arr[i])
+        while(arr && arr[i])
         {
-                tmp = ft_strjoin(arr[i], "/");
-                path = ft_strjoin(tmp, cmd);
-                free(tmp);
-                if(access(path, X_OK) == 0)
-                        break;
-                free(path);
-                path = NULL;
+                path = valid_path(arr[i], cmd);
+                if(path != NULL)
+                        break ;
                 i++;
         }
+        free_string_array(arr);
+        if(!path)
+                print_cmd_error(cmd, "command not found");
         return (path);
 }
 
@@ -54,23 +76,25 @@ int    ft_execve(t_data *data, t_cmd *cmd)
         int     pid;
         int     status;
 
-        cmd->pipex->path = find_program_path(data->env, data->cmd->command);
-        if(cmd->pipex->path == NULL)
-        {
-                printf("%s: command not found\n", data->cmd->command);
-                return (127);
-        }
+        cmd->pipex->path = find_program_path(data->env, cmd->command);
+        if(!cmd->pipex->path) return (127);
         pid = fork();
         if(pid == 0)
         {
-                if(execve(cmd->pipex->path, data->cmd->args, data->env_arr) == -1)
-                        perror("execve");
-                return (127);
+                signal(SIGINT, SIG_DFL);
+                if(execve(cmd->pipex->path, data->cmd->args, data->env_arr) == -1) perror("execve");
+                exit(127);
         }
         else
         {
                 waitpid(pid, &status, 0);
                 if (WIFEXITED(status)) return WEXITSTATUS(status);
+                else if (WIFSIGNALED(status))
+                {
+                        if (WTERMSIG(status) == SIGINT) write(1, "\n", 1);
+                        else if (WTERMSIG(status) == SIGQUIT) write(1, "Quit: 3\n", 8);
+                        return 128 + WTERMSIG(status);
+                }
         }
         return (0);
 }
