@@ -1,12 +1,9 @@
 #include "../minishell.h"
 
-
-
 void	init_cmd_in_out(t_cmd *cmd)
 {
 	if (!cmd->io_fds)
 	{
-		////////
 		cmd->io_fds = malloc(sizeof *cmd->io_fds);
 		if (!cmd->io_fds)
 			return ;
@@ -16,6 +13,7 @@ void	init_cmd_in_out(t_cmd *cmd)
 		cmd->io_fds->heredoc_quotes = false;
 		cmd->io_fds->fd_in = -1;
 		cmd->io_fds->fd_out = -1;
+        cmd->io_fds->fd_heredoc = -1;
 		// cmd->io_fds->stdin_backup = -1;
 		// cmd->io_fds->stdout_backup = -1;
 	}
@@ -72,12 +70,8 @@ t_env *init_env_list(char **envp)///////////////////ajout
 bool ft_initialise_env(t_data *data, char **env)
 {
     data->env = NULL;
-    data->export = NULL;
     copy_env(env, &data->env);
     if (!data->env)
-        return (false);
-    copy_env(env, &data->export);
-    if (!data->export)
         return (false);
     return (true);
 }
@@ -90,6 +84,7 @@ bool	ft_initialise_data(t_data *data, char **env)
 			"Could not initialize environment", 1);
 		return (false);
 	}
+    data->export = NULL;
     data->pwd = NULL;
     data->pwd = getcwd(NULL, 0);
     data->env_arr = NULL;

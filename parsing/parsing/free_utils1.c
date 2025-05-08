@@ -86,11 +86,11 @@ void free_env_array(char **env_arr)
     i = 0;
     while (env_arr[i])
     {
-        free(env_arr[i]);  // Free each string in the array
-        env_arr[i] = NULL; // Set it to NULL after freeing (optional)
+        free(env_arr[i]);
+        env_arr[i] = NULL;
         i++;
     }
-    free(env_arr);  // Finally, free the array itself
+    free(env_arr);
 }
 
 void	cleanup_shell_data(t_data *data, bool clear_history)
@@ -99,6 +99,8 @@ void	cleanup_shell_data(t_data *data, bool clear_history)
 		return ;
 	free_str(data->user_input);
 	data->user_input = NULL;
+	free_env_list(&data->export);
+	data->export = NULL;
 	if(data->env_arr)
 	{
 		free_string_array(data->env_arr);
@@ -111,7 +113,6 @@ void	cleanup_shell_data(t_data *data, bool clear_history)
 		if(data->cmd)
 			free_str(data->pwd);
 		free_env_list(&data->env);
-		free_env_list(&data->export);
 		rl_clear_history();
 	}
 }

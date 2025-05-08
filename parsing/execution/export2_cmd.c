@@ -1,5 +1,55 @@
 #include "../minishell.h"
 
+int     appand_value(t_env *tmp, char *arg)
+{
+    char    *str;
+    int     len;
+
+    len = ft_strchr(arg, '+') - arg;
+    while(tmp)
+    {
+        if(ft_strncmp(tmp->name, arg, len) == 0)
+        {
+            if(tmp->value)
+            {
+                str = tmp->value;
+                tmp->value = ft_strjoin(str, (ft_strchr(arg, '=') + 1));
+            }
+            else
+                tmp->value = ft_strdup(ft_strchr(arg, '=') + 1);
+            free(str);
+            return (0);
+        }
+        tmp = tmp->next;         
+    }
+    return (-1);
+}
+
+void  export_var(t_env **lst, char *var)
+{
+    int     len;
+    int     found;
+    t_env   *tmp;
+
+    found = 0;
+    tmp = *lst;
+    while(tmp)
+    {
+        if(ft_strncmp(tmp->name, var, (ft_strchr(var, '=') - var)) == 0)
+        {
+            len = ft_strlen(ft_strchr(var, '=') + 1);
+            free(tmp->value);
+            tmp->value = malloc(sizeof(char) * len + 1);
+            ft_strlcpy(tmp->value, ft_strchr(var, '=') + 1, len + 1); 
+            found++;
+            break;
+        }
+        tmp = tmp->next;
+    }
+    if(found == 0)
+        ft_lstadd_back(lst, ft_lstnew(var));
+}
+
 void    swap_nodes(t_env *lst, t_env **env)
 {
     t_env   *tmp;
@@ -21,15 +71,18 @@ static void    print_export(t_env *lst)
 {
         while(lst != NULL)
         {
-            printf("declare -x ");
-            printf("%s", lst->name);
-            if(lst->value)
+            if(lst->name)
             {
-                printf("=\"");
-                printf("%s", lst->value);
-                printf("\"");
+                printf("declare -x ");
+                printf("%s", lst->name);
+                if(lst->value)
+                {
+                    printf("=\"");
+                    printf("%s", lst->value);
+                    printf("\"");
+                }
+                printf("\n");
             }
-            printf("\n");
             lst = lst->next;
         }
 }

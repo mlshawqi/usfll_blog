@@ -42,7 +42,7 @@ char    *valid_path(char *str, char *cmd)
         return (NULL);
 }
 
-char     *find_program_path(t_env *env, char *cmd)
+char     *relative_path(t_env *env, char *cmd)
 {
         char    **arr;
         char    *path;
@@ -67,8 +67,43 @@ char     *find_program_path(t_env *env, char *cmd)
         }
         free_string_array(arr);
         if(!path)
-                print_cmd_error(cmd, "command not found");
+                print_cmd_error(cmd, "command not found", NULL);
         return (path);
+}
+
+static bool    is_directory(char *cmd)
+{
+        struct stat statbuf;
+
+        if (stat(cmd, &statbuf) == -1)
+            return false;
+        return S_ISDIR(statbuf.st_mode);
+}
+
+char     *find_program_path(t_env *env, char *cmd)
+{
+        int     i;
+
+        i = 0;
+        while(cmd[i])
+        {
+                if(cmd[i] == '/')
+                {
+                        g_last_exit_code = 127;
+                        if (access(cmd, F_OK) != 0)
+                                return (print_cmd_error("minishell", "No such file or directory", cmd), NULL);
+                        if (is_directory(cmd))
+                        {
+                                g_last_exit_code = 126;
+                                return (print_cmd_error("minishell", "Is a directory", cmd), NULL);
+                        }
+                        if (access(cmd, X_OK) != 0)
+                                return (print_cmd_error("minishell", "Permission denied", cmd), NULL);
+                        return (cmd);
+                }
+                i++;
+        }
+        return (relative_path(env, cmd));
 }
 
 int    ft_execve(t_data *data, t_cmd *cmd)
@@ -77,7 +112,7 @@ int    ft_execve(t_data *data, t_cmd *cmd)
         int     status;
 
         cmd->pipex->path = find_program_path(data->env, cmd->command);
-        if(!cmd->pipex->path) return (127);
+        if(!cmd->pipex->path) return (g_last_exit_code);
         pid = fork();
         if(pid == 0)
         {

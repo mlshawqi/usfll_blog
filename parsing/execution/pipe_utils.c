@@ -74,7 +74,7 @@ int    ft_execve_pipe(t_data *data, t_cmd *cmd)
 {
         cmd->pipex->path = find_program_path(data->env, cmd->command);
         if(!cmd->pipex->path)
-                return (127);
+                return (g_last_exit_code);
         if(execve(cmd->pipex->path,  cmd->args, data->env_arr) == -1)
                 perror("execve");
         return (EXIT_FAILURE);       

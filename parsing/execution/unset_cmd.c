@@ -15,9 +15,14 @@ static void    unset_var(t_env **head, char *variable)
                 lst->previous->next = lst->next;
             if(lst->next)
                 lst->next->previous = lst->previous;
-            free(lst->name);
-            free(lst->value);
+            if(lst->name)
+                free(lst->name);
+            lst->name = NULL;
+            if(lst->value)
+                free(lst->value);
+            lst->value = NULL;
             free(lst);
+            lst = NULL;
             break;
         }
         lst = lst->next;
@@ -35,7 +40,7 @@ int    unset_cmd(t_env **env, t_env **export, char **args)
             {
                 if(args[0][0] == '-')
                 {
-                    printf("unset : invalid option\n");
+                    print_cmd_error("unset", "invalid option", NULL);
                     return (2);
                 }
                 else

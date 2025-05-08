@@ -50,23 +50,24 @@ static int      is_longlong(char *str)
 
 int    exit_cmd(char **arg)
 {
-        printf("exit\n");
         if (!arg || !arg[0])
         {
+            write(1, "exit\n", 5);
             g_last_exit_code = 0;
             exit (0);
         }
         if (arg[1])
         {
-            printf("minishell: exit: too many arguments\n");
+            print_cmd_error("exit\nminishell", "exit: too many arguments", NULL);
             return (1);
         }
         if ((invalid_numeric_input(arg[0]) == 1) || (is_longlong(arg[0]) == -1))
         {
-            printf("minishell: exit: %s: numeric argument required\n", arg[0]);
+            print_cmd_error("exit\nminishell: exit", "numeric argument required", arg[0]);
             g_last_exit_code = 2;
             exit (2);
         }
+        write(1, "exit\n", 5);
         g_last_exit_code = ft_atoii(arg[0]);
         exit (g_last_exit_code);
 }

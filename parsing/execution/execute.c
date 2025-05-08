@@ -13,7 +13,7 @@ int     run_builtin_if_exists(t_data *data, t_cmd *cmd)
         else if(ft_strcmp(cmd->command, "exit") == 0)
                 g_last_exit_code = exit_cmd(cmd->args + 1);
         else if(ft_strcmp(cmd->command, "export") == 0)
-                g_last_exit_code = export_cmd(&data->env, &data->export, cmd->args + 1);
+                g_last_exit_code = export_cmd(data, &data->env, &data->export, cmd->args + 1);
         else if(ft_strcmp(cmd->command, "unset") == 0)
                 g_last_exit_code = unset_cmd(&data->env, &data->export, cmd->args + 1);
         else
@@ -37,6 +37,11 @@ void    handle_redirections(t_data *data, t_cmd *cmd)
         {
                 dup2(cmd->io_fds->fd_in, STDIN_FILENO);
                 close(cmd->io_fds->fd_in);
+        }
+        if(cmd->io_fds->fd_heredoc != -1)
+        {
+                dup2(cmd->io_fds->fd_heredoc, STDIN_FILENO);
+                close(cmd->io_fds->fd_heredoc);
         }
         if(run_builtin_if_exists(data, cmd) == 1)
                 g_last_exit_code = ft_execve(data, cmd);
@@ -107,7 +112,8 @@ int    execution(t_data *data)
         npipe = init_or_count_pipes(data->cmd, 0);
         data->env_arr = env_to_array(data->env);
         if(!data->env_arr)
-                return (malloc_error("t_data env_array")); 
+                return (malloc_error("t_data env_array"));
+        copy_env(data->env_arr , &data->export);
         if(!npipe)
         {
                 if(init_or_count_pipes(data->cmd, 1) == -1)
@@ -140,10 +146,15 @@ int	malloc_error(const char *context)
 	return (1);
 }
 
-void    print_cmd_error(const char *cmd, const char *msg)
+void    print_cmd_error(const char *cmd, const char *msg, char *option)
 {
         write(2, cmd, strlen(cmd));
         write(2, ": ", 2);
+        if(option)
+        {
+                write(2, option, strlen(option));
+                write(2, ": ", 2);
+        }
         write(2, msg, strlen(msg));
         write(2, "\n", 1);
 }
@@ -159,6 +170,29 @@ void    print_cmd_error(const char *cmd, const char *msg)
 
 
 
+
+
+
+
+// t_cmd *tmp = data->cmd;
+// while(tmp)
+// {
+//         printf("cmd %s\n", tmp->command);
+//         if(tmp->io_fds)
+//         {
+//                 if(tmp->io_fds->infile)
+//                         printf("infile %s\n", tmp->io_fds->infile);
+//                 if(tmp->io_fds->outfile)
+//                         printf("outfile %s\n", tmp->io_fds->outfile);
+//                 if(tmp->io_fds->heredoc_delimiter)
+//                         printf("heredoc_delimiter %s\n", tmp->io_fds->heredoc_delimiter);
+//                 if(tmp->io_fds->fd_in)
+//                         printf("in_fd %d\n", tmp->io_fds->fd_in);
+//                 if(tmp->io_fds->fd_out)
+//                         printf("out_fd %d\n", tmp->io_fds->fd_out);
+//         }
+//         tmp = tmp->next;
+// }
 
 
 

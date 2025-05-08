@@ -16,6 +16,8 @@
 # include <sys/types.h>
 #include "./print/ft_printf.h"
 #include "./libft/libft.h"
+#include <sys/stat.h>
+
 
 #define SUCCESS 0
 #define FAILURE 1
@@ -49,6 +51,7 @@ typedef struct s_in_out_fds
 	char	*outfile;
 	char	*heredoc_delimiter;
 	bool	heredoc_quotes;
+	int		fd_heredoc;
 	int		fd_in;
 	int		fd_out;
 	// int		stdin_backup;
@@ -200,7 +203,7 @@ void	handle_append_redirection(t_cmd **last_cmd, t_separation **token_lst);
 char	*build_string_from_array(char **array);
 char	*expand_variable_in_line(t_data *data, char *line);
 bool	check_heredoc_line(t_data *data, char **line, t_in_out_fds *io, bool *success);
-bool	write_heredoc_input(t_data *data, t_in_out_fds *io, int fd);
+int	write_heredoc_input(t_data *data, t_in_out_fds *io, int fd);
 bool	activate_heredoc(t_data *data, t_in_out_fds *io);
 char	*generate_heredoc_name(void);
 char	*get_delimiter(char *delim, bool *quotes);
@@ -253,13 +256,19 @@ int    echo_cmd(char **arg);
 int    cd_cmd(char **args, t_env **env, t_data *data);
 int    pwd_cmd(t_data *data, char **args);
 int    env_cmd(t_env *lst, char **arg);
-int    export_cmd(t_env **envrmnt, t_env **export, char **args);
+int    export_cmd(t_data *data, t_env **envrmnt, t_env **export, char **args);
 int    unset_cmd(t_env **env, t_env **export, char **args);
 int    exit_cmd(char **arg);
+
+int	fork_heredoc(t_data *data, t_in_out_fds *io);
+void    handle_sigint(int sig);
 
 void    copy_env(char **env, t_env **list);
 void    sort_env(t_env **env);
 void    swap_nodes(t_env *lst, t_env **env);
+void  export_var(t_env **lst, char *var);
+int     appand_value(t_env *tmp, char *arg);
+t_env    *new_node(char *arg);
 
 void	link_node(t_env **head, char *line);
 int	ft_lstsize(t_env *lst);
@@ -289,8 +298,9 @@ int    ft_execve_pipe(t_data *data, t_cmd *cmd);
 void    handle_pipe_redirections(t_data *data, t_cmd *tmp);
 int     init_or_count_pipes(t_cmd *cmd, int hint);
 int	malloc_error(const char *context);
-void    print_cmd_error(const char *cmd, const char *msg);
+void    print_cmd_error(const char *cmd, const char *msg, char *option);
 char    *valid_path(char *str, char *cmd);
+char     *relative_path(t_env *env, char *cmd);
 
 
 #endif

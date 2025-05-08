@@ -54,3 +54,17 @@ t_env	*ft_lstnew(char *line)
 	return (new_node);
 }
 
+t_env    *new_node(char *arg)
+{
+    t_env   *new;
+
+    new = malloc(sizeof(t_env));
+    if(!new)
+        return NULL;
+    ft_strlcpy(new->name, arg, (ft_strchr(arg, '+') - arg));
+    new->value = ft_strdup(ft_strchr(arg, '=') + 1);
+    new->next = NULL;
+    new->previous = NULL;
+    return (new);
+}
+

@@ -80,7 +80,7 @@ bool	check_heredoc_line(t_data *data, char **line,
 	return (true);
 }
 
-bool	write_heredoc_input(t_data *data, t_in_out_fds *io, int fd)
+int	write_heredoc_input(t_data *data, t_in_out_fds *io, int fd)
 {
 	char	*line;
 	bool	success;
@@ -89,16 +89,15 @@ bool	write_heredoc_input(t_data *data, t_in_out_fds *io, int fd)
 	line = NULL;
 	while (1)
 	{
-		configure_interactive_signals();
 		line = readline(">");
-		configure_noninteractive_signals();
+		
 		if (!check_heredoc_line(data, &line, io, &success))
 			break ;
 		ft_putendl_fd(line, fd);
 		free_str(line);
 	}
 	free_str(line);
-	return (success);
+	exit (0);
 }
 
 bool	activate_heredoc(t_data *data, t_in_out_fds *io)
@@ -155,16 +154,78 @@ void	process_heredoc(t_data *data, t_cmd **last_cmd,
 	io = cmd->io_fds;
 	if (!clean_up_old_file_ref(io, true))
 		return ;
-	io->infile = generate_heredoc_name();
+	// io->infile = generate_heredoc_name();
 	io->heredoc_delimiter = get_delimiter(token->next->str,
 			&(io->heredoc_quotes));
-	if (activate_heredoc(data, io))
-		io->fd_in = open(io->infile, O_RDONLY);
-	else
-		io->fd_in = -1;
+	// if (activate_heredoc(data, io))
+	// 	io->fd_in = open(io->infile, O_RDONLY);
+	fork_heredoc(data, io);
+	// else
+	// 	io->fd_in = -1;
 	if (token->next->next)
 		token = token->next->next;
 	else
 		token = token->next;
 	*token_lst = token;
+}
+
+
+void    handle_sigint(int sig)
+{
+        if(sig == SIGINT)
+	{
+		write(1, "\n", 1);
+		exit (130);
+	}
+}
+
+int	fork_heredoc(t_data *data, t_in_out_fds *io)
+{
+	int	pid;
+	int	fdpipe[2];
+	int	status;
+
+	if(pipe(fdpipe) == -1)
+	{
+		perror("pipe failed");
+                return (-1);
+	}
+	
+	pid = fork();
+	if(pid == 0)
+	{
+		signal(SIGINT, handle_sigint);
+		close(fdpipe[0]);
+		exit(write_heredoc_input(data, io, fdpipe[1]));
+	}
+	else if(pid != 0)
+	{
+		signal(SIGINT, SIG_IGN);
+		close(fdpipe[1]);
+		waitpid(pid, &status, 0);
+                if (WIFSIGNALED(status))
+                {
+			if (WTERMSIG(status) == SIGINT) 
+			{
+				print_cmd_error("here", "sigint", NULL);
+				close(fdpipe[0]);
+			}
+                        else if (WTERMSIG(status) == SIGQUIT)
+			{
+				close(fdpipe[0]);
+				write(1, "Quit: 3\n", 8);
+			}
+			io->fd_heredoc = -1;
+                        return 128 + WTERMSIG(status);
+                }
+		else
+		{
+			io->fd_heredoc = fdpipe[0];
+			if (WIFEXITED(status))
+				return WEXITSTATUS(status);
+		}
+	}
+	else
+		print_cmd_error("fork", "heredoc foek fail", NULL);
+	return (0);
 }
