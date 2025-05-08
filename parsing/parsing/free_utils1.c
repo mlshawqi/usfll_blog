@@ -15,7 +15,10 @@ void	free_in_out(t_in_out_fds *io)
 		if (tmp->filename)
 			free_str(tmp->filename);
 		if (tmp->fd != -1)
-			close_files_descriptors(tmp, true);
+		{
+			close(tmp->fd);
+			tmp->fd = -1;
+		}
 		tmp = tmp->next;
 	}
 	free(tmp);

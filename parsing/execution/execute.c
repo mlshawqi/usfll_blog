@@ -25,23 +25,26 @@ void    handle_redirections(t_data *data, t_cmd *cmd)
 {
         int     saved_stdout;
         int     saved_stdin;
+        t_in_out_fds    *tmp;
 
         saved_stdin = dup(STDIN_FILENO);
         saved_stdout = dup(STDOUT_FILENO);
-        if(cmd->io_fds->fd_out != -1)
+        tmp = cmd->io_fds;
+        while(tmp)
         {
-                dup2(cmd->io_fds->fd_out, STDOUT_FILENO);
-                close(cmd->io_fds->fd_out);
-        }
-        if(cmd->io_fds->fd_in != -1)
-        {
-                dup2(cmd->io_fds->fd_in, STDIN_FILENO);
-                close(cmd->io_fds->fd_in);
-        }
-        if(cmd->io_fds->fd_heredoc != -1)
-        {
-                dup2(cmd->io_fds->fd_heredoc, STDIN_FILENO);
-                close(cmd->io_fds->fd_heredoc);
+                if(tmp->fd != -1 && (tmp->type == REDIR_OUT 
+                                || tmp->type == REDIR_APPEND))
+                {
+                        dup2(tmp->fd, STDOUT_FILENO);
+                        close(tmp->fd);
+                }
+                else if(tmp->fd != -1 && (tmp->type == REDIR_IN 
+                                || tmp->type == REDIR_HEREDOC))
+                {
+                        dup2(tmp->fd, STDIN_FILENO);
+                        close(tmp->fd);
+                }
+                tmp = tmp->next;
         }
         if(run_builtin_if_exists(data, cmd) == 1)
                 g_last_exit_code = ft_execve(data, cmd);

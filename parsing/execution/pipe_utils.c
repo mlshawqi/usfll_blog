@@ -54,20 +54,29 @@ void    close_pipes(int **pipes,int count)
         }
 }
 
-void    handle_pipe_redirections(t_data *data, t_cmd *tmp)
+void    handle_pipe_redirections(t_data *data, t_cmd *cmd)
 {
-        if(tmp->io_fds->fd_out != -1)
+        t_in_out_fds    *tmp;
+
+        tmp = cmd->io_fds;
+        while(tmp)
         {
-                dup2(tmp->io_fds->fd_out, STDOUT_FILENO);
-                close(tmp->io_fds->fd_out);
+                if(tmp->fd != -1 && (tmp->type == REDIR_OUT 
+                                || tmp->type == REDIR_APPEND))
+                {
+                        dup2(tmp->fd, STDOUT_FILENO);
+                        close(tmp->fd);
+                }
+                else if(tmp->fd != -1 && (tmp->type == REDIR_IN 
+                                || tmp->type == REDIR_HEREDOC))
+                {
+                        dup2(tmp->fd, STDIN_FILENO);
+                        close(tmp->fd);
+                }
+                tmp = tmp->next;
         }
-        if(tmp->io_fds->fd_in != -1)
-        {
-                dup2(tmp->io_fds->fd_in, STDIN_FILENO);
-                close(tmp->io_fds->fd_in);
-        }
-        if(run_builtin_if_exists(data, tmp) == 1)
-                g_last_exit_code = ft_execve_pipe(data, tmp);
+        if(run_builtin_if_exists(data, cmd) == 1)
+                g_last_exit_code = ft_execve_pipe(data, cmd);
 }
 
 int    ft_execve_pipe(t_data *data, t_cmd *cmd)

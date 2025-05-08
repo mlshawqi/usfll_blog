@@ -14,22 +14,41 @@ void	display_command_arguments(t_cmd *cmd)
 	}
 }
 
+const char *get_redirection_name(t_redirections type)
+{
+    if (type == REDIR_IN)
+        return "REDIR_IN";
+    else if (type == REDIR_OUT)
+        return "REDIR_OUT";
+    else if (type == REDIR_APPEND)
+        return "REDIR_APPEND";
+    else if (type == REDIR_HEREDOC)
+        return "REDIR_HEREDOC";
+    return "UNKNOWN";
+}
+
 void	display_command_redirections(t_cmd *cmd)
 {
+	t_in_out_fds *tmp;
+
 	if (!cmd || !cmd->io_fds)
 		return ;
-
-	if (cmd->io_fds->infile)
+	tmp = cmd->io_fds;
+	while(tmp)
 	{
-		printf("\t- Infile        : %s\n", cmd->io_fds->infile);
-		printf("\t  > fd_in       : %d\n", cmd->io_fds->fd_in);
-	}
-	if (cmd->io_fds->heredoc_delimiter)
-		printf("\t- Heredoc delim : %s\n", cmd->io_fds->heredoc_delimiter);
-	if (cmd->io_fds->outfile)
-	{
-		printf("\t- Outfile       : %s\n", cmd->io_fds->outfile);
-		printf("\t  > fd_out      : %d\n", cmd->io_fds->fd_out);
+		printf("type: %s\n", get_redirection_name(tmp->type));
+		if (tmp->filename)
+			printf("\t- file name       : %s\n", tmp->filename);
+		if(tmp->fd)
+			printf("\t  fd_in       : %d\n", tmp->fd);
+		if (tmp->heredoc_delimiter)
+			printf("\t- Heredoc delim : %s\n", tmp->heredoc_delimiter);
+		// if (cmd->io_fds->outfile)
+		// {
+		// 	printf("\t- Outfile       : %s\n", cmd->io_fds->outfile);
+		// 	printf("\t  > fd_out      : %d\n", cmd->io_fds->fd_out);
+		// }
+		tmp = tmp->next;
 	}
 }
 

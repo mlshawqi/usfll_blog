@@ -45,6 +45,14 @@ typedef struct s_separation
 	struct s_separation	*next;
 }	t_separation;
 
+typedef enum s_redirection
+{
+	REDIR_IN,     // <
+	REDIR_OUT,    // >
+	REDIR_APPEND, // >>
+	REDIR_HEREDOC // <<
+}		t_redirections;
+
 typedef struct s_in_out_fds
 {
 	t_redirections		type;
@@ -59,15 +67,6 @@ typedef struct s_in_out_fds
 	// int		fd_in;
 	// int		fd_out;
 }	t_in_out_fds;
-
-
-typedef enum s_redirection
-{
-	REDIR_IN,     // <
-	REDIR_OUT,    // >
-	REDIR_APPEND, // >>
-	REDIR_HEREDOC // <<
-}		t_redirections;
 
 typedef	struct s_pipex
 {
@@ -273,6 +272,8 @@ int    exit_cmd(char **arg);
 
 int	fork_heredoc(t_data *data, t_in_out_fds *io);
 void    handle_sigint(int sig);
+void	link_node_redirection(t_in_out_fds **head, t_in_out_fds	*new_node);
+t_in_out_fds    *new_node_redirection(t_redirections type);
 
 void    copy_env(char **env, t_env **list);
 void    sort_env(t_env **env);
@@ -306,7 +307,7 @@ void    close_pipes(int **pipes,int count);
 int     wait_for_all(t_data *data);
 void    handle_sigint_pipe(int sig);
 int    ft_execve_pipe(t_data *data, t_cmd *cmd);
-void    handle_pipe_redirections(t_data *data, t_cmd *tmp);
+void    handle_pipe_redirections(t_data *data, t_cmd *cmd);
 int     init_or_count_pipes(t_cmd *cmd, int hint);
 int	malloc_error(const char *context);
 void    print_cmd_error(const char *cmd, const char *msg, char *option);

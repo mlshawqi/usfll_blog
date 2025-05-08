@@ -50,6 +50,7 @@ t_in_out_fds    *new_node_redirection(t_redirections type)
 	if(!new)
 	    return NULL;
 	new->type = type;
+	new->filename = NULL;
 	new->fd = -1;
 	new->heredoc_delimiter = NULL;
 	new->heredoc_quotes = false;

@@ -1,4 +1,3 @@
-# Nom de l'exécutable
 NAME	= minishell
 
 # Fichiers sources
