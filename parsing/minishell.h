@@ -47,16 +47,27 @@ typedef struct s_separation
 
 typedef struct s_in_out_fds
 {
-	char	*infile;
-	char	*outfile;
-	char	*heredoc_delimiter;
-	bool	heredoc_quotes;
-	int		fd_heredoc;
-	int		fd_in;
-	int		fd_out;
-	// int		stdin_backup;
-	// int		stdout_backup;
+	t_redirections		type;
+	int			fd;
+	char			*heredoc_delimiter;
+	bool			heredoc_quotes;
+	struct s_in_out_fds	*next;
+	char	*filename;
+
+	// char	*outfile;
+	// int		fd_heredoc;
+	// int		fd_in;
+	// int		fd_out;
 }	t_in_out_fds;
+
+
+typedef enum s_redirection
+{
+	REDIR_IN,     // <
+	REDIR_OUT,    // >
+	REDIR_APPEND, // >>
+	REDIR_HEREDOC // <<
+}		t_redirections;
 
 typedef	struct s_pipex
 {

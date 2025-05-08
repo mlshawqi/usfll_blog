@@ -100,17 +100,17 @@ int	write_heredoc_input(t_data *data, t_in_out_fds *io, int fd)
 	exit (0);
 }
 
-bool	activate_heredoc(t_data *data, t_in_out_fds *io)
-{
-	int		tmp_fd;
-	bool	success;
+// bool	activate_heredoc(t_data *data, t_in_out_fds *io)
+// {
+// 	int		tmp_fd;
+// 	bool	success;
 
-	success = true;
-	tmp_fd = open(io->infile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	success = write_heredoc_input(data, io, tmp_fd);
-	close(tmp_fd);
-	return (success);
-}
+// 	success = true;
+// 	tmp_fd = open(io->infile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+// 	success = write_heredoc_input(data, io, tmp_fd);
+// 	close(tmp_fd);
+// 	return (success);
+// }
 
 char	*generate_heredoc_name(void)
 {
@@ -146,22 +146,25 @@ void	process_heredoc(t_data *data, t_cmd **last_cmd,
 {
 	t_separation	*token;
 	t_cmd			*cmd;
-	t_in_out_fds	*io;
+	// t_in_out_fds	*io;
+	t_in_out_fds		*red;
 
 	token = *token_lst;
 	cmd = get_last_command(*last_cmd);
 	init_cmd_in_out(cmd);
-	io = cmd->io_fds;
-	if (!clean_up_old_file_ref(io, true))
+	red = new_node_redirection(REDIR_HEREDOC);
+	if(!red)
 		return ;
+	red->heredoc_delimiter = get_delimiter(token->next->str, &(red->heredoc_quotes));
+	// io = cmd->io_fds;
+	// if (!clean_up_old_file_ref(io, true))
+	// 	return ;
 	// io->infile = generate_heredoc_name();
-	io->heredoc_delimiter = get_delimiter(token->next->str,
-			&(io->heredoc_quotes));
+
 	// if (activate_heredoc(data, io))
 	// 	io->fd_in = open(io->infile, O_RDONLY);
-	fork_heredoc(data, io);
-	// else
-	// 	io->fd_in = -1;
+	fork_heredoc(data, red);
+	link_node_redirection(&cmd->io_fds, red);
 	if (token->next->next)
 		token = token->next->next;
 	else
@@ -215,12 +218,12 @@ int	fork_heredoc(t_data *data, t_in_out_fds *io)
 				close(fdpipe[0]);
 				write(1, "Quit: 3\n", 8);
 			}
-			io->fd_heredoc = -1;
+			io->fd = -1;
                         return 128 + WTERMSIG(status);
                 }
 		else
 		{
-			io->fd_heredoc = fdpipe[0];
+			io->fd = fdpipe[0];
 			if (WIFEXITED(status))
 				return WEXITSTATUS(status);
 		}

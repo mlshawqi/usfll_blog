@@ -2,19 +2,23 @@
 
 void	free_in_out(t_in_out_fds *io)
 {
-	if (!io)
-		return ;
-	// redirecte_io(io);
-	if (io->heredoc_delimiter)
+	t_in_out_fds *tmp;
+
+	tmp = io;
+	while(tmp)
 	{
-		unlink(io->infile);
-		free_str(io->heredoc_delimiter);
+		if (tmp->heredoc_delimiter)
+		{
+			unlink(tmp->filename);
+			free_str(tmp->heredoc_delimiter);
+		}
+		if (tmp->filename)
+			free_str(tmp->filename);
+		if (tmp->fd != -1)
+			close_files_descriptors(tmp, true);
+		tmp = tmp->next;
 	}
-	if (io->infile)
-		free_str(io->infile);
-	if (io->outfile)
-		free_str(io->outfile);
-	free_str(io);
+	free(tmp);
 }
 
 void	free_string_array(char **array)
@@ -42,12 +46,20 @@ void	free_string_array(char **array)
 
 void	close_files_descriptors(t_cmd *cmds, bool should_close)
 {
+	t_in_out_fds	*tmp;
+
 	if (cmds->io_fds)
 	{
-		if (cmds->io_fds->fd_in != -1)
-			close(cmds->io_fds->fd_in);
-		if (cmds->io_fds->fd_out != -1)
-			close(cmds->io_fds->fd_out);
+		tmp = cmds->io_fds;
+		while(tmp)
+		{
+			if (tmp->fd != -1)
+			{
+				close(tmp->fd);
+				tmp->fd = -1;
+			}
+			tmp = tmp->next;
+		}
 	}
 }
 
