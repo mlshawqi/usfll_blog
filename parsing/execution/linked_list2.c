@@ -61,7 +61,7 @@ void	ft_lstdelone(t_env *lst)
 {
 	if (lst == NULL)
 		return ;
-	free(lst->name);
-	free(lst->value);
+	free_str_null(&lst->name);
+	free_str_null(&lst->value);
 	free(lst);
 }

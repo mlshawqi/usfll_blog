@@ -1,5 +1,13 @@
 #include "../minishell.h"
 
+void    free_str_null(char **str)
+{
+        if(!str || !(*str))
+                return ;
+        free(*str);
+        *str = NULL;
+}
+
 char    *valid_path(char *str, char *cmd)
 {
         char    *tmp;
@@ -9,10 +17,12 @@ char    *valid_path(char *str, char *cmd)
         path = NULL;
         tmp = ft_strjoin(str, "/");
         path = ft_strjoin(tmp, cmd);
-        free(tmp);
+        if(tmp)
+                free_str_null(&tmp);
         if(access(path, X_OK) == 0)
                 return (path);
-        free(path);
+        if(path)
+                free_str_null(&path);
         return (NULL);
 }
 

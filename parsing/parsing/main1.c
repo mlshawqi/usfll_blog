@@ -34,7 +34,8 @@ void	minishell_noninteractive(t_data *data, char *arg)
 	{
 		data->user_input = ft_strdup(user_inputs[i]);
 		process_user_input(data);
-		execution(data);
+		if(data->cmd)
+			execution(data);
 		cleanup_shell_data(data, false);
 	}
 	free_string_array(user_inputs);

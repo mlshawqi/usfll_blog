@@ -16,7 +16,8 @@ int    pwd_cmd(t_data *data, char **args)
         if (cwd)
         {
             printf("%s\n", cwd);
-            free(data->pwd);
+            if(data->pwd)
+                free_str_null(&data->pwd);
             data->pwd = cwd;
         }
         else

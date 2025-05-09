@@ -27,7 +27,6 @@ static int  change_home(t_env *env)
     return (0);
 }
 
-
 static void    update_pwd(t_env **env, char *path, char hint)
 {
     t_env   *lst;
@@ -38,7 +37,8 @@ static void    update_pwd(t_env **env, char *path, char hint)
         if((hint == 'P' && (ft_strcmp(lst->name, "PWD") == 0)) 
             || (hint == 'O' && (ft_strcmp(lst->name, "OLDPWD") == 0)))
         {
-                free_str(lst->value);
+                if(lst->value)
+                    free_str_null(&lst->value);
                 if(!path)
                     lst->value = ft_strdup("");
                 else
@@ -68,12 +68,11 @@ static int    update_pwd2(t_data *data, t_env **env)
         update_pwd(env, pwd, 'P');
         if(data->pwd)
         {
-                free(data->pwd);
-                data->pwd = NULL;
+                free_str_null(&data->pwd);
                 data->pwd = ft_strdup(pwd);
         }
         if(pwd)
-            free(pwd);
+            free_str_null(&pwd);
         return (0);
 }
 
@@ -86,7 +85,7 @@ int    cd_cmd(char **args, t_env **env, t_data *data)
             old = ft_strdup(data->pwd);
     update_pwd(env, old, 'O');
     if(old)
-        free(old);
+        free_str_null(&old);
     if((!args || !args[0]) || (ft_strcmp(args[0], "~") == 0 && !args[1]))
     {
         if(change_home(*env) == -1)

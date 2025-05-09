@@ -16,10 +16,10 @@ static void    unset_var(t_env **head, char *variable)
             if(lst->next)
                 lst->next->previous = lst->previous;
             if(lst->name)
-                free(lst->name);
+                free_str_null(&lst->name);
             lst->name = NULL;
             if(lst->value)
-                free(lst->value);
+                free_str_null(&lst->value);
             lst->value = NULL;
             free(lst);
             lst = NULL;

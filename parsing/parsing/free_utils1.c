@@ -10,10 +10,10 @@ void	free_in_out(t_in_out_fds *io)
 		if (tmp->heredoc_delimiter)
 		{
 			unlink(tmp->filename);
-			free_str(tmp->heredoc_delimiter);
+			free_str_null(&tmp->heredoc_delimiter);
 		}
 		if (tmp->filename)
-			free_str(tmp->filename);
+			free_str_null(&tmp->filename);
 		if (tmp->fd != -1)
 		{
 			close(tmp->fd);
@@ -37,7 +37,7 @@ void	free_string_array(char **array)
 		{
 			if (array[i])
 			{
-				free_str(array[i]);
+				free_str_null(&array[i]);
 				array[i] = NULL;
 			}
 			i++;
@@ -102,7 +102,7 @@ void free_env_array(char **env_arr)
     i = 0;
     while (env_arr[i])
     {
-        free(env_arr[i]);
+        free_str_null(&env_arr[i]);
         env_arr[i] = NULL;
         i++;
     }
@@ -126,7 +126,7 @@ void	cleanup_shell_data(t_data *data, bool clear_history)
 {
 	if (!data)
 		return ;
-	free_str(data->user_input);
+	free_str_null(&data->user_input);
 	data->user_input = NULL;
 	execution_cleanup(data);
 	clear_token_list(&data->token, &free_str);
@@ -134,7 +134,7 @@ void	cleanup_shell_data(t_data *data, bool clear_history)
 	if (clear_history)
 	{
 		if(data->cmd)
-			free_str(data->pwd);
+			free_str_null(&data->pwd);
 		free_env_list(&data->env);
 		rl_clear_history();
 	}

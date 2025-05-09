@@ -12,7 +12,7 @@ void	free_command(t_cmd *cmd, void (*del)(void *))
 	if (cmd->pipex)
 	{
 		if(cmd->pipex->path)
-			free_str(cmd->pipex->path);
+			free_str_null(&cmd->pipex->path);
 		free(cmd->pipex);
 		cmd->pipex = NULL;
 	}

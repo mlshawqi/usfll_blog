@@ -6,7 +6,11 @@ void    free_tab(int **arr, int i)
                 return ;
         while (i >= 0)
         {
-                free(arr[i]);
+                if(arr[i])
+                {
+                        free(arr[i]);
+                        arr[i] = NULL;
+                }
                 i--;
         }
         free(arr);

@@ -16,7 +16,7 @@ char    **env_to_array(t_env *env)
                 if(!tmp)
                         return (free_string_array(array), NULL);
                 array[i] = ft_strjoin(tmp, env->value);
-                free(tmp);
+                free_str_null(&tmp);
                 if (!array[i])
                         return (free_string_array(array), NULL);
                 env = env->next;

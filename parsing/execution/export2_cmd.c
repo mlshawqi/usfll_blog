@@ -17,7 +17,7 @@ int     appand_value(t_env *tmp, char *arg)
             }
             else
                 tmp->value = ft_strdup(ft_strchr(arg, '=') + 1);
-            free(str);
+            free_str_null(&str);
             return (0);
         }
         tmp = tmp->next;         
@@ -38,7 +38,7 @@ void  export_var(t_env **lst, char *var)
         if(ft_strncmp(tmp->name, var, (ft_strchr(var, '=') - var)) == 0)
         {
             len = ft_strlen(ft_strchr(var, '=') + 1);
-            free(tmp->value);
+            free_str_null(&tmp->value);
             tmp->value = malloc(sizeof(char) * len + 1);
             ft_strlcpy(tmp->value, ft_strchr(var, '=') + 1, len + 1); 
             found++;
