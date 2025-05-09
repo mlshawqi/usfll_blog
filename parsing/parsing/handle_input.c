@@ -28,7 +28,7 @@
 void	open_input_file(t_in_out_fds *io, char *file, char *original_filename)
 {
 	bool	parse_success2 = true;
-	// if (!clean_up_old_file_ref(io, true))
+	// if (!clean_up_old_file_ref(io, true)) 
 	// 	return ;
 	io->filename = ft_strdup(file);
 	if (io->filename && io->filename[0] == '\0')

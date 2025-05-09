@@ -1,31 +1,5 @@
 #include "../minishell.h"
 
-char    **env_to_array(t_env *env)
-{
-        int     i;
-        char    **array;
-        char    *tmp;
-
-        i = 0;
-        array = malloc(sizeof(char *) * (ft_lstsize(env) + 1));
-        if (!array)
-                return (NULL);
-        while(env)
-        {
-                tmp = ft_strjoin(env->name, "=");
-                if(!tmp)
-                        return (free_string_array(array), NULL);
-                array[i] = ft_strjoin(tmp, env->value);
-                free(tmp);
-                if (!array[i])
-                        return (free_string_array(array), NULL);
-                env = env->next;
-                i++;
-        }
-        array[i] = NULL;
-        return (array);
-}
-
 char    *valid_path(char *str, char *cmd)
 {
         char    *tmp;

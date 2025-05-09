@@ -86,6 +86,7 @@ void	free_env_list(t_env **list)
 			free((*list)->value);
 			(*list)->value = NULL;
 		}
+		free(*list);
 		*list = p;
 	}
 	*list = NULL;
@@ -107,6 +108,19 @@ void free_env_array(char **env_arr)
     }
     free(env_arr);
 }
+void	execution_cleanup(t_data *data)
+{
+	if(data->export)
+	{
+		free_env_list(&data->export);
+		data->export = NULL;
+	}
+	if(data->env_arr)
+	{
+		free_string_array(data->env_arr);
+		data->env_arr = NULL;
+	}
+}
 
 void	cleanup_shell_data(t_data *data, bool clear_history)
 {
@@ -114,13 +128,7 @@ void	cleanup_shell_data(t_data *data, bool clear_history)
 		return ;
 	free_str(data->user_input);
 	data->user_input = NULL;
-	free_env_list(&data->export);
-	data->export = NULL;
-	if(data->env_arr)
-	{
-		free_string_array(data->env_arr);
-		data->env_arr = NULL;
-	}
+	execution_cleanup(data);
 	clear_token_list(&data->token, &free_str);
 	free_command_list(&data->cmd, &free_str);
 	if (clear_history)

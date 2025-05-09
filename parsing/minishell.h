@@ -291,13 +291,17 @@ void	ft_lstclear(t_env **lst);
 void	ft_lstdelone(t_env *lst);
 long long	ft_atoii(const char *str);
 
+void	execution_cleanup(t_data *data);
+
 //execve
 int     run_builtin_if_exists(t_data *data, t_cmd *cmd);
 char     *find_program_path(t_env *env, char *cmd);
 char    **env_to_array(t_env *env);
 int    execution(t_data *data);
 int    ft_execve(t_data *data, t_cmd *cmd);
-void    handle_redirections(t_data *data, t_cmd *tmp);
+int    handle_redirections(t_data *data, t_cmd *tmp);
+int     dup_redirect(t_in_out_fds *redirect);
+int     init_env_arr(t_data *data);
 int    execute_with_pipes(t_data *data, int npipe);
 int     **allocate_pipes(int count);
 void    free_tab(int **arr, int i);
@@ -307,7 +311,7 @@ void    close_pipes(int **pipes,int count);
 int     wait_for_all(t_data *data);
 void    handle_sigint_pipe(int sig);
 int    ft_execve_pipe(t_data *data, t_cmd *cmd);
-void    handle_pipe_redirections(t_data *data, t_cmd *cmd);
+int    handle_pipe_redirections(t_data *data, t_cmd *cmd);
 int     init_or_count_pipes(t_cmd *cmd, int hint);
 int	malloc_error(const char *context);
 void    print_cmd_error(const char *cmd, const char *msg, char *option);
