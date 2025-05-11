@@ -59,9 +59,17 @@ t_env *init_env_list(char **envp)///////////////////ajout
 bool ft_initialise_env(t_data *data, char **env)
 {
     data->env = NULL;
-    copy_env(env, &data->env);
-    if (!data->env)
-        return (false);
+    if(env && *env)
+    {
+        copy_env(env, &data->env);
+        data->path = NULL;
+        if (!data->env)
+            return (false);
+    }
+    else
+    {
+        init_env_defaults(data);
+    }
     return (true);
 }
 
@@ -73,6 +81,7 @@ bool	ft_initialise_data(t_data *data, char **env)
 			"Could not initialize environment", 1);
 		return (false);
 	}
+    set_shell_lvl(data->env);
     data->export = NULL;
     data->pwd = NULL;
     data->pwd = getcwd(NULL, 0);

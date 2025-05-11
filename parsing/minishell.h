@@ -101,6 +101,7 @@ typedef struct s_data
 	t_env		*env;
 	char		**env_arr;
 	char		*pwd;
+	char		*path;
 	// char		*working_dir;
 	// char		*old_working_dir;
 	t_cmd	*cmd;
@@ -281,7 +282,7 @@ void  export_var(t_env **lst, char *var);
 int     appand_value(t_env *tmp, char *arg);
 t_env    *new_node(char *arg);
 
-void	link_node(t_env **head, char *line);
+void	link_node(t_env **head, t_env *new_node);
 int	ft_lstsize(t_env *lst);
 t_env	*ft_lstnew(char *line);
 void	ft_lstadd_back(t_env **lst, t_env *new);
@@ -294,7 +295,7 @@ void	execution_cleanup(t_data *data);
 
 //execve
 int     run_builtin_if_exists(t_data *data, t_cmd *cmd);
-char     *find_program_path(t_env *env, char *cmd);
+char     *find_program_path(t_data *data, t_env *env, char *cmd);
 char    **env_to_array(t_env *env);
 int    execution(t_data *data);
 int    ft_execve(t_data *data, t_cmd *cmd);
@@ -315,10 +316,12 @@ int     init_or_count_pipes(t_cmd *cmd, int hint);
 int	malloc_error(const char *context);
 void    print_cmd_error(const char *cmd, const char *msg, char *option);
 char    *valid_path(char *str, char *cmd);
-char     *relative_path(t_env *env, char *cmd);
+char     *relative_path(t_data *data, t_env *env, char *cmd);
 void    free_str_null(char **str);
 void	set_signals(void);
 void    free_pipes(int **arr);
+void    init_env_defaults(t_data *data);
+void    set_shell_lvl(t_env *env);
 
 
 #endif
