@@ -7,7 +7,6 @@ SRCS	= 	./lexification/test1.c \
 			./lexification/print_errors.c \
 			./lexification/check_if_var.c \
 			./lexification/lst_utils.c \
-			./lexification/lst_utils2.c \
 			./lexification/parsing_input.c \
 			./expansion/delete_quotes.c \
 			./expansion/expand_variable.c \

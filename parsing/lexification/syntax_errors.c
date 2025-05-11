@@ -81,14 +81,6 @@ int	check_errors_rep(t_separation **token_lst)
 	{
 		if (check_errors_part_one(temp) == FAILURE)
 			return (FAILURE);
-		// if (temp && temp->type == PIPE)
-		// {
-		// 	display_error_message(
-		// 		"syntax error near unexpected token",
-		// 		temp->str,
-		// 		true);
-		// 	return (FAILURE);
-		// }
 		if (has_consecutive_ops(temp))
 		{
 			display_error_message(

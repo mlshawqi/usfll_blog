@@ -5,20 +5,6 @@ void	init_cmd_in_out(t_cmd *cmd)
 	if (!cmd->io_fds)
 	{
         cmd->io_fds = NULL;
-		// cmd->io_fds = malloc(sizeof *cmd->io_fds);
-		// if (!cmd->io_fds)
-		// 	return ;
-		// cmd->io_fds->heredoc_delimiter = NULL;
-		// cmd->io_fds->heredoc_quotes = false;
-        // cmd->io_fds->fd = -1;
-        // cmd->io_fds->type = (t_redirections)-1;
-        // cmd->io_fds->infile = NULL;
-		// cmd->io_fds->outfile = NULL;
-		// cmd->io_fds->fd_in = -1;
-		// cmd->io_fds->fd_out = -1;
-        // cmd->io_fds->fd_heredoc = -1;
-		// cmd->io_fds->stdin_backup = -1;
-		// cmd->io_fds->stdout_backup = -1;
 	}
 }
 

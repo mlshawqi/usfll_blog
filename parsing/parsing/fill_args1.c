@@ -67,7 +67,7 @@ char	**extend_args_with_tokens(int existing_len, char **new_args,
 
 int	append_default_args(t_separation **token_node, t_cmd *cmd)
 {
-	// printf("🧩 append_default_arguments called\n");
+	printf("🧩 append_default_arguments called\n");
 	int				arg_count;
 	int				existing_len;
 	char			**new_args;
@@ -97,10 +97,6 @@ int	append_default_args(t_separation **token_node, t_cmd *cmd)
 
 int	process_command_args(t_separation **token_node, t_cmd *last_cmd)
 {
-	// int	result;
-
-	// if (*token_node == NULL)
-	// 	return (SUCCESS);
 	if (ft_strcmp(last_cmd->command, "echo") == 0)
 	{
 		if (last_cmd->args == NULL)
@@ -115,7 +111,5 @@ int	process_command_args(t_separation **token_node, t_cmd *last_cmd)
 		else
 			return(append_default_args(token_node, last_cmd));
 	}
-	// if (result != SUCCESS)
-	// 	return (FAILURE);
 	return (SUCCESS);
 }

@@ -73,13 +73,14 @@ char	*replace_heredoc_var(char *str, char *value, int idx)
 	char	*tmp;
 
 	if (!value)
-		*str = '\0';
-	else
-	{
-		tmp = str;
-		str = replace_and_update(NULL, str, value, idx);
-		free_str(tmp);
-	}
+		value = ft_strdup("");
+
+	if (!value)
+		return (NULL);
+
+	tmp = str;
+	str = replace_and_update(NULL, str, value, idx);
+	free_str(tmp);
 	free_str(value);
 	return (str);
 }

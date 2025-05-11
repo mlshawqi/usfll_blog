@@ -1,68 +1,41 @@
 #include "../minishell.h"
 
-char	*concatenate_strings(char *base, const char *suffix)
+int print_command_error(char *command, char *detail, char *error_message, int error_code)
 {
-	char	*result;
-
-	if (!suffix)
-		return (base);
-	if (!base)
-		return (ft_strdup(suffix));
-	result = ft_strjoin(base, suffix);
-	free_str(base);
-	return (result);
-}
-
-static bool	needs_quotes(char *command)
-{
-	return (ft_strncmp(command, "export", 7) == 0
-		|| ft_strncmp(command, "unset", 6) == 0);
-}
-
-int	print_command_error(char *command, char *detail,
-		char *error_message, int error_code)
-{
-	char	*msg;
-	bool	use_quotes;
-
-	use_quotes = needs_quotes(command);
-	msg = ft_strdup("minishell: ");
+	write(STDERR_FILENO, "minishell: ", 11);
 	if (command)
 	{
-		msg = concatenate_strings(msg, command);
-		msg = concatenate_strings(msg, ": ");
+		write(STDERR_FILENO, command, strlen(command));
+		write(STDERR_FILENO, ": ", 2);
 	}
 	if (detail)
 	{
-		if (use_quotes)
-			msg = concatenate_strings(msg, "`");
-		msg = concatenate_strings(msg, detail);
-		if (use_quotes)
-			msg = concatenate_strings(msg, "'");
-		msg = concatenate_strings(msg, ": ");
+		write(STDERR_FILENO, detail, strlen(detail));
+		write(STDERR_FILENO, ": ", 2);
 	}
-	msg = concatenate_strings(msg, error_message);
-	ft_putendl_fd(msg, STDERR_FILENO);
-	free_str(msg);
-	return (error_code);
+	if (error_message)
+		write(STDERR_FILENO, error_message, strlen(error_message));
+	write(STDERR_FILENO, "\n", 1);
+	return error_code;
 }
 
-void	display_error_message(char *error_text,
-		const char *info, int use_quotes)
+void display_error_message(char *error_text, const char *info, int use_quotes)
 {
-	char	*msg;
+	write(STDERR_FILENO, "minishell: ", 11);
+	write(STDERR_FILENO, error_text, strlen(error_text));
 
-	msg = ft_strdup("minishell: ");
-	msg = concatenate_strings(msg, error_text);
 	if (use_quotes)
-		msg = concatenate_strings(msg, " `");
+		write(STDERR_FILENO, " `", 2);
 	else
-		msg = concatenate_strings(msg, ": ");
-	msg = concatenate_strings(msg, info);
+		write(STDERR_FILENO, ": ", 2);
+
+	if (info)
+		write(STDERR_FILENO, info, strlen(info));
+
 	if (use_quotes)
-		msg = concatenate_strings(msg, "'");
-	ft_putendl_fd(msg, STDERR_FILENO);
-	free_str(msg);
+		write(STDERR_FILENO, "'", 1);
+
+	write(STDERR_FILENO, "\n", 1);
 }
 
 bool	usage_message(bool return_val)
@@ -71,4 +44,3 @@ bool	usage_message(bool return_val)
 	ft_putendl_fd("Usage: ./minishell -c \"input line\"", 2);
 	return (return_val);
 }
-

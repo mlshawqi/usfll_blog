@@ -40,15 +40,3 @@ int	var_checker(t_separation **token_list)
 	}
 	return (SUCCESS);
 }
-
-void	print_tokens(t_separation *token_lst)
-{
-	t_separation	*temp;
-
-	temp = token_lst;
-	while (temp)
-	{
-		printf("Token: %s | Type: %d\n", temp->str, temp->type);
-		temp = temp->next;
-	}
-}

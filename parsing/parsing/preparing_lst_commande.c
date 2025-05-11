@@ -20,7 +20,7 @@ t_cmd	*create_command(bool pipe_output)
 		return (NULL);
 	ft_memset(cmd, 0, sizeof(t_cmd));
 	cmd->pipe_output = pipe_output;
-	init_command(&cmd);
+	// init_command(&cmd);
 	return (cmd);
 }
 

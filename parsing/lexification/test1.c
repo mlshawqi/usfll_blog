@@ -165,8 +165,6 @@ int	malloc_word_separator(int *i, char *str,
 		}
 		start = *i + 1;
 	}
-	// if (start == *i)
-	// 	(*i)++; machakil ==> ls -l | grep h ==> ne marche pas
 	return (start);
 }
 
@@ -202,11 +200,6 @@ int	tokenization(t_data *data, char *str)
 
 	if (status != DFLT)
 		return (handle_unclosed_quotes(status));
-
-	// Vérification des erreurs de syntaxe APRES avoir formé la liste de tokens
-	// if (check_errors_rep(&(data->token)) == FAILURE)
-	// 	return (FAILURE);
-
 	if (!data->token)
 		return (1);
 

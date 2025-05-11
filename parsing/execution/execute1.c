@@ -83,6 +83,8 @@ int     dup_redirect(t_in_out_fds *redirect)
                 }
                 close(redirect->fd);
         }
+        else if(redirect->fd == -1)
+                return (1);
         return (0);
 }
 

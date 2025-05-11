@@ -3,9 +3,6 @@
 void	open_output_file_append(t_in_out_fds *io,
 		char *file, char *original_filename)
 {
-	// bool	parse_success1 = true;
-	// if (!clean_up_old_file_ref(io, false))
-	// 	return ;
 	io->filename = ft_strdup(file);
 	if (io->filename && io->filename[0] == '\0' && original_filename)
 	{

@@ -1,6 +1,5 @@
 #include "../minishell.h"
 
-// int	g_last_exit_code;
 
 static int does_var_exist(t_env *env, char *var)
 {

@@ -13,7 +13,7 @@ int     wait_for_all(t_data *data)
                         if (WTERMSIG(tmp->pipex->status) == SIGINT)
                                 write(1, "\n", 1);
                         else if (WTERMSIG(tmp->pipex->status) == SIGQUIT)
-                                write(1, "Quit: 3\n", 8);
+                                write(1, "Quit (core dumped)\n", 19);
                 }
                 if (!tmp->next)
                 {

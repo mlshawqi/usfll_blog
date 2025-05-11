@@ -29,8 +29,11 @@ bool	process_user_input(t_data *data)
 
     if (var_checker(&data->token) == FAILURE)
         return (false);
+   
     expand_variables(data, &data->token);
+
     process_quotes(data);
+
     ft_create_commands(data, data->token);
     return (true);
 }

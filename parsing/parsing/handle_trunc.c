@@ -1,10 +1,7 @@
 #include "../minishell.h"
 
-
 void	open_outfile_trunc(t_in_out_fds *io, char *file, char *var_filename)
 {
-	// if (!clean_up_old_file_ref(io, false))
-	// 	return ;
 	io->filename = ft_strdup(file);
 	if (!io->filename || io->filename[0] == '\0')
 	{

@@ -16,13 +16,13 @@ char	*build_string_from_array(char **array)
 		else
 		{
 			result = ft_strjoin(temp, array[i]);
-			free_str_null(&temp);
+			free_str(temp);
 		}
 		if (array[i + 1])
 		{
 			temp = result;
 			result = ft_strjoin(temp, " ");
-			free_str_null(&temp);
+			free_str(temp);
 		}
 	}
 	free_string_array(array);

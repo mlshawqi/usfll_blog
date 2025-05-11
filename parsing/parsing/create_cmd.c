@@ -46,6 +46,5 @@ void	ft_create_commands(t_data *data, t_separation *token)
 		else if (cur->type == END)
 			break ;
 	}
-	// printf("⛏️ current token = %s (type %d)\n", token->str, token->type);
 	initialize_no_arg_commands(data);
 }

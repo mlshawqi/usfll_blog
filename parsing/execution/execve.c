@@ -97,23 +97,28 @@ int    ft_execve(t_data *data, t_cmd *cmd)
 
         cmd->pipex->path = find_program_path(data->env, cmd->command);
         if(!cmd->pipex->path) return (g_last_exit_code);
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
         pid = fork();
         if(pid == 0)
         {
                 signal(SIGINT, SIG_DFL);
+                signal(SIGQUIT, SIG_DFL);
                 if(execve(cmd->pipex->path, data->cmd->args, data->env_arr) == -1) perror("execve");
                 exit(127);
         }
         else
         {
                 waitpid(pid, &status, 0);
-                if (WIFEXITED(status)) return WEXITSTATUS(status);
-                else if (WIFSIGNALED(status))
+                if (WIFSIGNALED(status))
                 {
-                        if (WTERMSIG(status) == SIGINT) write(1, "\n", 1);
-                        else if (WTERMSIG(status) == SIGQUIT) write(1, "Quit: 3\n", 8);
+                        if (WTERMSIG(status) == SIGINT)
+                                write(1, "\n", 1);
+                        else if (WTERMSIG(status) == SIGQUIT)
+                                write(1, "Quit (core dumped)\n", 19);
                         return 128 + WTERMSIG(status);
                 }
+                if (WIFEXITED(status)) return WEXITSTATUS(status);
         }
         return (0);
 }

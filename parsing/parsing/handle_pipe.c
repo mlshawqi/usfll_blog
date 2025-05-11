@@ -7,6 +7,5 @@ void	handle_pipe(t_cmd **cmd, t_separation **token_list)
 	last_command = get_last_command(*cmd);
 	last_command->pipe_output = true;
 	add_command_to_list(&last_command, create_command(false));
-	// if (*token_list != NULL)
 	*token_list = (*token_list)->next;
 }

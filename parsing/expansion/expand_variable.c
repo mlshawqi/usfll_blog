@@ -49,7 +49,7 @@ static void	process_variable_token(t_data *data, t_separation **curr)
 	while ((*curr)->str[i])
 	{
 		toggle_quote_status(curr, (*curr)->str[i]);
-		if ((*curr)->str[i] == '$'
+		if ((*curr)->str[i] == '$' && (*curr)->str[i-1] != '\\'
 			&& !is_var_separator((*curr)->str[i + 1])
 			&& !is_var_quoted((*curr)->str, i)
 			&& ((*curr)->status == DFLT || (*curr)->status == DQUOTE))
@@ -88,28 +88,17 @@ char	*expand_heredoc_variables(t_data *data, char *str)
 	while (str[i])
 	{
 		if (str[i] == '$'
-			&& !is_var_separator(str[i + 1])
+			&& !is_var_separator(str[i + 1] && str[i-1] != '\\')
 			&& !is_var_quoted(str, i))
-		{
-			str = replace_heredoc_var(str,
-					get_value(NULL, str + i, data->env), i);///////////////
-		}
-		else
+			{
+				int	dollar_count = count_preceding_dollars(str, i);
+				if (dollar_count % 2 == 0) // impair si count est pair
+				{
+					str = replace_heredoc_var(str,
+								get_value(NULL, str + i, data->env), i);
+				}
+			}
 			i++;
 	}
 	return (str);
-}
-
-t_separation	*create_token(char *str)
-{
-	t_separation	*token;
-
-	token = malloc(sizeof(t_separation));
-	if (!token)
-		return (NULL);
-	token->str = strdup(str);
-	token->type = VAR;
-	token->status = DFLT;
-	token->next = NULL;
-	return (token);
 }
