@@ -270,7 +270,7 @@ int    unset_cmd(t_env **env, t_env **export, char **args);
 int    exit_cmd(char **arg);
 
 int	fork_heredoc(t_data *data, t_in_out_fds *io);
-void    handle_sigint(int sig);
+void    handle_sigint_heredoc(int sig);
 void	link_node_redirection(t_in_out_fds **head, t_in_out_fds	*new_node);
 t_in_out_fds    *new_node_redirection(t_redirections type);
 
@@ -317,5 +317,8 @@ void    print_cmd_error(const char *cmd, const char *msg, char *option);
 char    *valid_path(char *str, char *cmd);
 char     *relative_path(t_env *env, char *cmd);
 void    free_str_null(char **str);
+void	set_signals(void);
+void    free_pipes(int **arr);
+
 
 #endif

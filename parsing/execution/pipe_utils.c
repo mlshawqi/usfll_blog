@@ -1,5 +1,25 @@
 #include "../minishell.h"
 
+void    kill_all_child(t_data *data, char sig)
+{
+        t_cmd   *cmd;
+
+        cmd = data->cmd;
+        while(cmd)
+        {
+                // fprintf(stderr, "at least here in out kill_all_child\n");
+                if(!WIFEXITED(cmd->pipex->status) && !WIFSIGNALED(cmd->pipex->status))
+                {
+                        // fprintf(stderr, "at least here inside kill_all_child\n");
+                        if(sig == 'c')
+                                kill(cmd->pipex->fork_pid, SIGINT);
+                        else if(sig == 'q')
+                                kill(cmd->pipex->fork_pid, SIGQUIT);
+                }
+                cmd = cmd->next;
+        }
+}
+
 int     wait_for_all(t_data *data)
 {
         t_cmd   *tmp;
@@ -11,9 +31,16 @@ int     wait_for_all(t_data *data)
                 if (WIFSIGNALED(tmp->pipex->status))
                 {
                         if (WTERMSIG(tmp->pipex->status) == SIGINT)
+                        {
                                 write(1, "\n", 1);
+                                kill_all_child(data, 'c');
+                        }
                         else if (WTERMSIG(tmp->pipex->status) == SIGQUIT)
+                        {
                                 write(1, "Quit (core dumped)\n", 19);
+                                kill_all_child(data, 'q');
+                        }
+                        return (1);
                 }
                 if (!tmp->next)
                 {

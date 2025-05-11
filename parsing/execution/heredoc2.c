@@ -1,6 +1,6 @@
 #include "../minishell.h"
 
-void    handle_sigint(int sig)
+void    handle_sigint_heredoc(int sig)
 {
         if(sig == SIGINT)
 	{
@@ -26,13 +26,9 @@ int     handle_parent(int *fdpipe, t_in_out_fds *io, int pid)
         }
 	else
 	{
-		write(1, "wrong dest\n", 11);
 		io->fd = fdpipe[0];
 		if (WIFEXITED(status))
-		{
-			fprintf(stderr, "exit %d\n", WEXITSTATUS(status));
 			return WEXITSTATUS(status);
-		}
 	}
         return (0);
 }
@@ -50,10 +46,10 @@ int	fork_heredoc(t_data *data, t_in_out_fds *io)
 	signal(SIGINT, SIG_IGN);
 	pid = fork();
         if(pid < 0)
-                return (print_cmd_error("fork", "heredoc foek fail", NULL), 1);
+                return (print_cmd_error("fork", "heredoc fork fail", NULL), 1);
 	else if(pid == 0)
 	{
-		signal(SIGINT, handle_sigint);
+		signal(SIGINT, handle_sigint_heredoc);
 		close(fdpipe[0]);
 		exit(write_heredoc_input(data, io, fdpipe[1]));
 	}

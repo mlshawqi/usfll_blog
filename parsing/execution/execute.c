@@ -59,21 +59,24 @@ int    execute_with_pipes(t_data *data, int npipe)
         if(!pipefd)
                 return (malloc_error("pipes[][]"));;
         i = 0;
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
         while(tmp)
         {
                 if(init_or_count_pipes(tmp, 1) == -1)
-                        return (malloc_error("t_pipex pipex"));;
+                        return (malloc_error("t_pipex pipex"));
                 tmp->pipex->fork_pid = fork();
                 if(tmp->pipex->fork_pid == 0)
                 {
-                        signal(SIGINT, SIG_DFL);       
+                        signal(SIGINT, SIG_DFL);
+                        signal(SIGQUIT, SIG_DFL);       
                         exit (handle_child_process(data, tmp, pipefd, i, npipe));
                 }
                 tmp = tmp->next;
                 i++;
         }
         close_pipes(pipefd, npipe);
-        free_tab(pipefd, npipe);
+        free_pipes(pipefd);
         return(wait_for_all(data));
 }
 
@@ -97,7 +100,10 @@ int    execution(t_data *data)
                         handle_redirections(data, data->cmd);
         }
         else
+        {
                 g_last_exit_code = execute_with_pipes(data, npipe);
+                set_signals();
+        }
 
         // display_pipeline_commands(data);
         return (0);

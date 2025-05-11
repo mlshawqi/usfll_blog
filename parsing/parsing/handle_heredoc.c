@@ -128,6 +128,7 @@ void	process_heredoc(t_data *data, t_cmd **last_cmd,
 		return ;
 	red->heredoc_delimiter = get_delimiter(token->next->str, &(red->heredoc_quotes));
 	fork_heredoc(data, red);
+	set_signals();
 	link_node_redirection(&cmd->io_fds, red);
 	if (token->next->next)
 		token = token->next->next;

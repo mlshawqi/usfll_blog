@@ -1,5 +1,21 @@
 #include "../minishell.h"
 
+void    free_pipes(int **arr)
+{
+        int     i;
+
+        if (!arr)
+                return;
+        i = 0;
+        while(arr[i])
+        {
+                free(arr[i]);
+                arr[i] = NULL;
+                i++;
+        }
+        free(arr);
+}
+
 void    free_tab(int **arr, int i)
 {
         if(!arr)
@@ -14,7 +30,6 @@ void    free_tab(int **arr, int i)
                 i--;
         }
         free(arr);
-        arr = NULL;
 }
 
 int     **allocate_pipes(int count)
@@ -22,13 +37,13 @@ int     **allocate_pipes(int count)
         int     **arr;
         int     i;
 
-        arr = ft_calloc(count, sizeof(int *));
+        arr = malloc(sizeof(int *) * (count + 1));
         if(!arr)
                 return (NULL);
         i = 0;
         while(i < count)
         {
-                arr[i] = ft_calloc(2, sizeof(int));
+                arr[i] = malloc(sizeof(int) * 2);
                 if(!arr[i])
                 {
                         free_tab(arr, i - 1);
@@ -42,6 +57,7 @@ int     **allocate_pipes(int count)
                 }
                 i++;
         }
+        arr[i] = NULL;
         return (arr);
 }
 

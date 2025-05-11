@@ -6,9 +6,9 @@ void	minishell_interactive(t_data *data)
 {
 	while (1)
 	{
-		configure_interactive_signals();
+		set_signals();
 		data->user_input = readline("minishell~$ ");
-		configure_noninteractive_signals();
+		// configure_noninteractive_signals();
 		if (!data->user_input)
 		{
 			printf("exit\n");

@@ -1,5 +1,11 @@
 #include "../minishell.h"
 
+void	set_signals(void)
+{
+	signal(SIGINT, reset_input_prompt);
+	signal(SIGQUIT, SIG_IGN);
+}
+
 void	reset_input_prompt(int signo)
 {
 	(void)signo;
