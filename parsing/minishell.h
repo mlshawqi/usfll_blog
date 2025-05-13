@@ -101,7 +101,6 @@ typedef struct s_data
 	t_env		*env;
 	char		**env_arr;
 	char		*pwd;
-	char		*path;
 	// char		*working_dir;
 	// char		*old_working_dir;
 	t_cmd	*cmd;
@@ -191,8 +190,8 @@ char *replace_heredoc_var(char *str, char *value, int idx);
 
 ////////////////////Parsing
 bool	process_user_input(t_data *data);
-void free_command(t_cmd *cmd, void (*del)(void *));
-void free_command_list(t_cmd **cmd_list, void (*del)(void *));
+void free_command(t_cmd *cmd);
+void free_command_list(t_cmd **cmd_list);
 void	initialize_no_arg_commands(t_data *data);
 void	ft_create_commands(t_data *data, t_separation *token);
 int count_token_args(t_separation *node);
@@ -295,7 +294,7 @@ void	execution_cleanup(t_data *data);
 
 //execve
 int     run_builtin_if_exists(t_data *data, t_cmd *cmd);
-char     *find_program_path(t_data *data, t_env *env, char *cmd);
+char     *find_program_path(t_env *env, char *cmd);
 char    **env_to_array(t_env *env);
 int    execution(t_data *data);
 int    ft_execve(t_data *data, t_cmd *cmd);
@@ -316,7 +315,7 @@ int     init_or_count_pipes(t_cmd *cmd, int hint);
 int	malloc_error(const char *context);
 void    print_cmd_error(const char *cmd, const char *msg, char *option);
 char    *valid_path(char *str, char *cmd);
-char     *relative_path(t_data *data, t_env *env, char *cmd);
+char     *relative_path(t_env *env, char *cmd);
 void    free_str_null(char **str);
 void	set_signals(void);
 void    free_pipes(int **arr);

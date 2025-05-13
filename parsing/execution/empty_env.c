@@ -6,8 +6,11 @@ static t_env    *creat_node(char *name, char *value)
         node = malloc(sizeof(t_env));
 	if (!node)
 		return (malloc_error("t_env"), NULL);
-        node->name = ft_strdup(name);
-        node->value = ft_strdup(value);
+        ft_memset(node, 0, sizeof(t_env));
+        if(name)
+                node->name = ft_strdup(name);
+        if(value)
+                node->value = ft_strdup(value);
         return (node);
 }
 
@@ -60,22 +63,19 @@ void    set_shell_lvl(t_env *env)
         }
 }
 
-void    build_default_path(t_data *data)
-{
-        data->path = ft_strdup("/usr/local/sbin:"
-                               "/usr/local/bin:/usr/sbin:"
-                               "/usr/bin:/sbin:/bin"
-                                "/usr/games:/usr/local/games:/snap/bin");
-}   
-
-void    init_env_defaults(t_data *data)
+void     init_env_defaults(t_data *data)
 {
         char    *pwd;
+        char    *path;
 
         pwd = getcwd(NULL, 0);
         if(!pwd)
                 print_cmd_error("pwd", strerror(errno), NULL);
         link_node(&data->env, creat_node("PWD", pwd));
         link_node(&data->env, creat_node("SHLVL", "1"));
-        build_default_path(data);
+        path = ft_strdup("/home/machaouk/.local/bin"
+                ":/usr/local/sbin:/usr/local/bin"
+                ":/usr/sbin:/usr/bin:/sbin:/bin");
+        link_node(&data->env, creat_node("PATH", path));
+        link_node(&data->env, creat_node("OLDPWD", NULL));
 }

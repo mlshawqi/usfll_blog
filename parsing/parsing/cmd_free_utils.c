@@ -1,12 +1,12 @@
 #include "../minishell.h"
 
 
-void	free_command(t_cmd *cmd, void (*del)(void *))
+void	free_command(t_cmd *cmd)
 {
 	if (!cmd)
 		return ;
 	if (cmd->command)
-		(*del)(cmd->command);
+		free_str_null(&cmd->command);
 	if (cmd->args)
 		free_string_array(cmd->args);
 	if (cmd->pipex)
@@ -18,11 +18,11 @@ void	free_command(t_cmd *cmd, void (*del)(void *))
 	}
 	if (cmd->io_fds)
 		free_in_out(cmd->io_fds);
-	(*del)(cmd);
+	free(cmd);
 }
 
 
-void	free_command_list(t_cmd **cmd_list, void (*del)(void *))
+void	free_command_list(t_cmd **cmd_list)
 {
 	t_cmd	*temp;
 
@@ -30,7 +30,8 @@ void	free_command_list(t_cmd **cmd_list, void (*del)(void *))
 	while (*cmd_list)
 	{
 		temp = (*cmd_list)->next;
-		free_command(*cmd_list, del);
+		free_command(*cmd_list);
 		*cmd_list = temp;
 	}
+	*cmd_list = NULL;
 }

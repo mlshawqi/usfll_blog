@@ -26,7 +26,7 @@ char    *valid_path(char *str, char *cmd)
         return (NULL);
 }
 
-char     *relative_path(t_data *data, t_env *env, char *cmd)
+char     *relative_path(t_env *env, char *cmd)
 {
         char    **arr;
         char    *path;
@@ -35,16 +35,11 @@ char     *relative_path(t_data *data, t_env *env, char *cmd)
 
         arr = NULL;
         tmp_env = env;
-        if(data->path)
-                arr = ft_split(data->path, ':');
-        else
+        while(tmp_env)
         {
-                while(tmp_env)
-                {
-                        if(ft_strcmp(tmp_env->name, "PATH") == 0)
-                                arr = ft_split(tmp_env->value, ':');
-                        tmp_env = tmp_env->next;
-                }
+                if(ft_strcmp(tmp_env->name, "PATH") == 0)
+                        arr = ft_split(tmp_env->value, ':');
+                tmp_env = tmp_env->next;
         }
         i = 0;
         while(arr && arr[i])
@@ -69,7 +64,7 @@ static bool    is_directory(char *cmd)
         return S_ISDIR(statbuf.st_mode);
 }
 
-char     *find_program_path(t_data *data, t_env *env, char *cmd)
+char     *find_program_path(t_env *env, char *cmd)
 {
         int     i;
 
@@ -92,7 +87,7 @@ char     *find_program_path(t_data *data, t_env *env, char *cmd)
                 }
                 i++;
         }
-        return (relative_path(data, env, cmd));
+        return (relative_path(env, cmd));
 }
 
 int    ft_execve(t_data *data, t_cmd *cmd)
@@ -100,7 +95,7 @@ int    ft_execve(t_data *data, t_cmd *cmd)
         int     pid;
         int     status;
 
-        cmd->pipex->path = find_program_path(data, data->env, cmd->command);
+        cmd->pipex->path = find_program_path(data->env, cmd->command);
         if(!cmd->pipex->path) return (g_last_exit_code);
         signal(SIGINT, SIG_IGN);
         signal(SIGQUIT, SIG_IGN);
@@ -115,6 +110,7 @@ int    ft_execve(t_data *data, t_cmd *cmd)
         else
         {
                 waitpid(pid, &status, 0);
+                set_signals();
                 if (WIFSIGNALED(status))
                 {
                         if (WTERMSIG(status) == SIGINT)

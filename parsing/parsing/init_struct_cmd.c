@@ -62,7 +62,6 @@ bool ft_initialise_env(t_data *data, char **env)
     if(env && *env)
     {
         copy_env(env, &data->env);
-        data->path = NULL;
         if (!data->env)
             return (false);
     }

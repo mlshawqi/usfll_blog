@@ -61,5 +61,5 @@ int main(int ac, char **av, char **env)
     }
     exit_shell(&data, g_last_exit_code);
 
-    return 0;
+    exit (g_last_exit_code);
 }

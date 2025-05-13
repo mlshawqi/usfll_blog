@@ -33,6 +33,7 @@ int    pwd_cmd(t_data *data, char **args)
         return (0);
 }
 
+
 int    env_cmd(t_env *lst, char **arg)
 {
         if(arg && arg[0])
@@ -42,11 +43,12 @@ int    env_cmd(t_env *lst, char **arg)
         }
         while(lst != NULL)
         {
-            if(lst->name)
+            if(lst->name && lst->value && (ft_strcmp(lst->name, "_") != 0))
             {
                 printf("%s=%s\n", lst->name, lst->value);
             }
             lst = lst->next;
         }
+        printf("_=/usr/bin/env\n");
         return (0);
 }

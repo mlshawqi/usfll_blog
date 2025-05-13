@@ -130,10 +130,10 @@ void	cleanup_shell_data(t_data *data, bool clear_history)
 	data->user_input = NULL;
 	execution_cleanup(data);
 	clear_token_list(&data->token, &free_str);
-	free_command_list(&data->cmd, &free_str);
+	free_command_list(&data->cmd);
 	if (clear_history)
 	{
-		if(data->cmd)
+		if(data->pwd)
 			free_str_null(&data->pwd);
 		free_env_list(&data->env);
 		rl_clear_history();

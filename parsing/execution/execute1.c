@@ -15,7 +15,10 @@ char    **env_to_array(t_env *env)
                 tmp = ft_strjoin(env->name, "=");
                 if(!tmp)
                         return (free_string_array(array), NULL);
-                array[i] = ft_strjoin(tmp, env->value);
+                if(env->value)
+                        array[i] = ft_strjoin(tmp, env->value);
+                else
+                        array[i] = ft_strdup(tmp);
                 free_str_null(&tmp);
                 if (!array[i])
                         return (free_string_array(array), NULL);
